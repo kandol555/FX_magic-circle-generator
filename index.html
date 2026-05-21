@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Magic Circle Generator Pro v6 Code Header</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: rgba(12, 20, 35, 0.95);
+      --panel-2: rgba(7, 14, 27, 0.95);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e5eef8;
+      --muted: #93a4b8;
+      --accent: #7dd3fc;
+      --accent-2: #d8f2ff;
+      --danger: #fca5a5;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(147, 51, 234, 0.12), transparent 35%),
+        var(--bg);
+    }
+    .app { width: min(1860px, 100%); margin: 0 auto; padding: 18px; }
+    .header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; margin-bottom: 16px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(125, 211, 252, 0.10);
+      border: 1px solid rgba(125, 211, 252, 0.25); color: #d9f5ff; padding: 7px 12px;
+      border-radius: 999px; font-size: 13px; font-weight: 700;
+    }
+    h1 { margin: 10px 0 8px; font-size: clamp(30px, 4vw, 54px); line-height: 1.02; letter-spacing: -0.05em; }
+    .subtitle { margin: 0; color: #c8d4e2; max-width: 980px; line-height: 1.6; font-size: 15px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    button, .button-like {
+      border: 0; cursor: pointer; border-radius: 14px; padding: 11px 14px; font-weight: 700;
+      color: #04111f; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22); transition: transform 0.12s ease, opacity 0.12s ease; font-size: 14px;
+    }
+    button:hover, .button-like:hover { transform: translateY(-1px); }
+    button.secondary, .button-like.secondary {
+      color: var(--text); background: var(--panel-2); border: 1px solid rgba(148, 163, 184, 0.22); box-shadow: none;
+    }
+    button.danger {
+      color: #fee2e2; background: rgba(127, 29, 29, 0.65); border: 1px solid rgba(252, 165, 165, 0.22); box-shadow: none;
+    }
+    .layout { display: grid; grid-template-columns: 370px 400px 1fr; gap: 16px; align-items: start; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.30); overflow: hidden; min-height: 120px;
+    }
+    .panel-inner { padding: 18px; }
+    .panel-title {
+      font-size: 18px; font-weight: 800; margin: 0 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .control { display: flex; flex-direction: column; gap: 7px; }
+    .control label { font-size: 13px; color: #dbe7f3; font-weight: 700; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.45; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%; background: rgba(4, 10, 21, 0.96); color: var(--text); border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 14px; padding: 11px 12px; outline: none; font-size: 14px;
+    }
+    textarea { min-height: 84px; resize: vertical; }
+    
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 28px;
+      cursor: pointer;
+      touch-action: none;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.35);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      margin-top: -8px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #d8f2ff;
+      box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.16);
+      cursor: grab;
+    }
+    input[type="range"]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      box-shadow: 0 0 0 7px rgba(125, 211, 252, 0.22);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.35);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #d8f2ff;
+      box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.16);
+      cursor: grab;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: rgba(125, 211, 252, 0.70); }
+    .inline-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .value-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 13px; color: #dbe7f3; }
+    .value-row span:last-child { color: var(--accent); font-variant-numeric: tabular-nums; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border-radius: 999px; padding: 8px 12px; font-size: 12px; background: rgba(125, 211, 252, 0.1);
+      border: 1px solid rgba(125, 211, 252, 0.20); color: #d9f5ff; font-weight: 700;
+    }
+    .toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); user-select: none; }
+    .preview-panel { padding: 18px; }
+    .preview-wrap {
+      width: min(100%, 980px); margin: 0 auto; aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.04) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.04) 75%),
+        rgba(0,0,0,0.36);
+      background-size: 26px 26px; background-position: 0 0, 0 13px, 13px -13px, -13px 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #preview { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .layer-list { display: flex; flex-direction: column; gap: 8px; max-height: 540px; overflow: auto; padding-right: 4px; }
+    .layer-item {
+      border: 1px solid rgba(148, 163, 184, 0.16); background: rgba(5, 11, 22, 0.78); border-radius: 16px; padding: 12px;
+      display: grid; grid-template-columns: auto auto 1fr auto; gap: 10px; align-items: center; cursor: pointer;
+    }
+    .layer-item.active { border-color: rgba(125, 211, 252, 0.65); background: rgba(125, 211, 252, 0.08); }
+    .layer-item.locked { opacity: 0.82; }
+    .layer-eye, .layer-lock {
+      width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.04); font-size: 14px; flex-shrink: 0;
+    }
+    .layer-main { min-width: 0; }
+    .layer-name { font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .layer-meta { margin-top: 3px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .layer-type {
+      font-size: 11px; padding: 6px 9px; border-radius: 999px; background: rgba(255,255,255,0.05); color: #dce7f3;
+      border: 1px solid rgba(255,255,255,0.08); font-weight: 700;
+    }
+    .group-pill {
+      font-size: 10px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(125,211,252,0.08);
+      border: 1px solid rgba(125,211,252,0.16);
+      color: #d9f5ff;
+      font-weight: 800;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .small-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .small-actions button { padding: 9px 11px; font-size: 13px; border-radius: 12px; }
+    .divider { height: 1px; background: rgba(148, 163, 184, 0.12); margin: 4px 0; }
+    .empty-box {
+      border: 1px dashed rgba(148, 163, 184, 0.22); border-radius: 16px; padding: 16px; color: var(--muted);
+      font-size: 14px; line-height: 1.6; background: rgba(5, 11, 22, 0.40);
+    }
+    .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .notice {
+      border-radius: 14px; padding: 12px 14px; background: rgba(125, 211, 252, 0.08); border: 1px solid rgba(125, 211, 252, 0.18);
+      color: #d7eefb; font-size: 13px; line-height: 1.6;
+    }
+    .locked-overlay {
+      border-radius: 16px; padding: 12px 14px; background: rgba(252, 165, 165, 0.08); border: 1px solid rgba(252, 165, 165, 0.18);
+      color: #fee2e2; font-size: 13px; line-height: 1.6;
+    }
+
+    body[data-workspace-layout="fit1080"] .app {
+      width: min(1920px, 100%);
+      padding: 8px 10px;
+    }
+    body[data-workspace-layout="fit1080"] .header {
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    body[data-workspace-layout="fit1080"] h1 {
+      font-size: clamp(24px, 2.4vw, 36px);
+      margin: 6px 0 4px;
+      letter-spacing: -0.04em;
+    }
+    body[data-workspace-layout="fit1080"] .subtitle {
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 900px;
+    }
+    body[data-workspace-layout="fit1080"] .badge {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] .actions {
+      gap: 6px;
+      max-width: 720px;
+    }
+    body[data-workspace-layout="fit1080"] button,
+    body[data-workspace-layout="fit1080"] .button-like {
+      padding: 8px 10px;
+      border-radius: 11px;
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] .layout {
+      grid-template-columns: 330px 360px 1fr;
+      gap: 8px;
+      height: calc(100vh - 96px);
+      overflow: hidden;
+    }
+    body[data-workspace-layout="fit1080"] .panel {
+      border-radius: 16px;
+      max-height: calc(100vh - 96px);
+      overflow: auto;
+    }
+    body[data-workspace-layout="fit1080"] .panel-inner {
+      padding: 10px;
+    }
+    body[data-workspace-layout="fit1080"] .stack {
+      gap: 8px;
+    }
+    body[data-workspace-layout="fit1080"] .control {
+      gap: 4px;
+    }
+    body[data-workspace-layout="fit1080"] .control label,
+    body[data-workspace-layout="fit1080"] .value-row {
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] .hint,
+    body[data-workspace-layout="fit1080"] .footer-note {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+    body[data-workspace-layout="fit1080"] input[type="text"],
+    body[data-workspace-layout="fit1080"] input[type="number"],
+    body[data-workspace-layout="fit1080"] select,
+    body[data-workspace-layout="fit1080"] textarea {
+      padding: 7px 9px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] textarea {
+      min-height: 56px;
+    }
+    body[data-workspace-layout="fit1080"] input[type="range"] {
+      height: 22px;
+    }
+    body[data-workspace-layout="fit1080"] input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+    }
+    body[data-workspace-layout="fit1080"] input[type="range"]::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      margin-top: -7px;
+    }
+    body[data-workspace-layout="fit1080"] input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+    }
+    body[data-workspace-layout="fit1080"] .small-actions {
+      gap: 5px;
+    }
+    body[data-workspace-layout="fit1080"] .small-actions button {
+      padding: 6px 8px;
+      font-size: 11px;
+      border-radius: 9px;
+    }
+    body[data-workspace-layout="fit1080"] .panel-title {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    body[data-workspace-layout="fit1080"] .preview-panel {
+      padding: 10px;
+    }
+    body[data-workspace-layout="fit1080"] .preview-wrap {
+      width: min(100%, 600px);
+      border-radius: 16px;
+    }
+    body[data-workspace-layout="fit1080"] .layer-list {
+      max-height: calc(100vh - 350px);
+      gap: 6px;
+    }
+    body[data-workspace-layout="fit1080"] .layer-item {
+      padding: 8px;
+      border-radius: 12px;
+      gap: 7px;
+    }
+    body[data-workspace-layout="fit1080"] .layer-eye,
+    body[data-workspace-layout="fit1080"] .layer-lock {
+      width: 23px;
+      height: 23px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] .layer-name {
+      font-size: 12px;
+    }
+    body[data-workspace-layout="fit1080"] .layer-meta,
+    body[data-workspace-layout="fit1080"] .layer-type,
+    body[data-workspace-layout="fit1080"] .group-pill {
+      font-size: 10px;
+    }
+    body[data-workspace-layout="fit1080"] .notice,
+    body[data-workspace-layout="fit1080"] .empty-box,
+    body[data-workspace-layout="fit1080"] .locked-overlay {
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    body[data-workspace-layout="fit1080"] .chip {
+      padding: 5px 8px;
+      font-size: 10px;
+    }
+    body[data-workspace-layout="compact"] .app { padding: 12px; }
+    body[data-workspace-layout="compact"] .layout { grid-template-columns: 350px 390px 1fr; gap: 12px; }
+    body[data-workspace-layout="compact"] .panel-inner { padding: 14px; }
+    body[data-workspace-layout="compact"] .preview-wrap { width: min(100%, 720px); }
+    body[data-workspace-layout="large"] .layout { grid-template-columns: 410px 430px 1fr; }
+    body[data-workspace-layout="large"] .preview-wrap { width: min(100%, 1080px); }
+    @media (max-height: 900px) {
+      body[data-workspace-layout="normal"] .panel,
+      body[data-workspace-layout="compact"] .panel,
+      body[data-workspace-layout="large"] .panel {
+        max-height: calc(100vh - 130px);
+        overflow: auto;
+      }
+    }
+
+    @media (max-width: 1440px) { .layout { grid-template-columns: 350px 380px 1fr; } }
+    @media (max-width: 1160px) {
+      .header { flex-direction: column; align-items: flex-start; }
+      .actions { justify-content: flex-start; }
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="header">
+      <div>
+        <div class="badge" id="headerBadgeText">✦ Magic Circle Generator Pro v6 Code Header Code Header lightning-white Save+ Live Layout 드래그 개선판</div>
+        <h1 id="headerTitleText">게임용 스타일 재정리 버전</h1>
+        <p class="subtitle">
+          생성 스타일 (게임용 분류) 이름을 더 직관적인 게임용 분류로 정리했습니다.
+          각 스타일은 샘플 이미지가 아니라, 해당 테마의 생성 규칙을 기반으로 절차적으로 만들어집니다.
+        </p>
+      </div>
+      <div class="actions">
+        <button id="generateBtn">↻ 절차적 생성</button>
+        <button class="secondary" id="undoBtn">Undo</button>
+        <button class="secondary" id="redoBtn">Redo</button>
+        <button class="secondary" id="saveProjectBtn">프로젝트 저장</button>
+        <button class="secondary" id="loadProjectBtn">프로젝트 불러오기</button>
+        <button class="secondary" id="downloadSvgBtn">SVG 저장</button>
+        <button class="secondary" id="downloadPngBtn">PNG 저장</button>
+        <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="panel-inner stack">
+          <h2 class="panel-title">생성 / 프리셋</h2>
+
+          <div class="control">
+            <label for="stylePresetSelect">생성 스타일</label>
+            <select id="stylePresetSelect"></select>
+            <div class="hint" id="stylePresetHint"></div><div class="hint">선택한 스타일은 고정 이미지가 아니라, 해당 테마 규칙으로 생성되는 샘플 미리보기입니다.</div>
+          </div>
+
+          <div class="inline-2">
+            <div class="control">
+              <label for="seedInput">Seed</label>
+              <input id="seedInput" type="number" min="0" max="999999999" />
+            </div>
+            <div class="control">
+              <label for="canvasSizeSelect">출력 크기</label>
+              <select id="canvasSizeSelect">
+                <option value="1024">1024</option>
+                <option value="2048">2048</option>
+                <option value="4096">4096</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control">
+            <label for="workspaceLayoutSelect">작업 레이아웃 크기</label>
+            <select id="workspaceLayoutSelect">
+              <option value="fit1080">1080p 맞춤</option>
+              <option value="compact">컴팩트</option>
+              <option value="normal">기본</option>
+              <option value="large">크게 보기</option>
+            </select>
+            <div class="hint">1920×1080 화면에서는 “1080p 맞춤”을 권장합니다.</div>
+          </div>
+
+          <div class="control">
+            <div class="value-row"><span>변형 강도</span><span id="variationLabel"></span></div>
+            <input id="variationInput" type="range" min="0" max="100" step="1" />
+          </div>
+          <div class="control">
+            <div class="value-row"><span>생성 복잡도</span><span id="complexityLabel"></span></div>
+            <input id="complexityInput" type="range" min="0" max="100" step="1" />
+          </div>
+          <div class="control">
+            <div class="value-row"><span>장식 밀도</span><span id="ornamentDensityLabel"></span></div>
+            <input id="ornamentDensityInput" type="range" min="0" max="100" step="1" />
+          </div>
+          <div class="control">
+            <div class="value-row"><span>룬 밀도</span><span id="runeDensityLabel"></span></div>
+            <input id="runeDensityInput" type="range" min="0" max="100" step="1" />
+          </div>
+
+          <label class="toggle">
+            <input type="checkbox" id="transparentBgInput" checked />
+            <span>투명 배경 사용</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="showGuidesInput" />
+            <span>가이드 표시 (중심선 / 안전 원)</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="guidesPreviewOnlyInput" checked />
+            <span>가이드는 미리보기에서만 표시</span>
+          </label>
+
+          <div class="divider"></div>
+
+          <div class="control">
+            <label>사용자 프리셋</label>
+            <select id="userPresetSelect">
+              <option value="">저장된 사용자 프리셋 선택</option>
+            </select>
+            <div class="small-actions">
+              <button class="secondary" id="saveUserPresetBtn">현재 상태 저장</button>
+              <button class="secondary" id="loadUserPresetBtn">불러오기</button>
+              <button class="danger" id="deleteUserPresetBtn">삭제</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="control">
+            <label>빠른 레이어 추가</label>
+            <div class="small-actions">
+              <button class="secondary" data-add-type="circle">+ 원형</button>
+              <button class="secondary" data-add-type="arcRing">+ 원호 링</button>
+              <button class="secondary" data-add-type="nodeRing">+ 노드 링</button>
+              <button class="secondary" data-add-type="chainRing">+ 체인 링</button>
+              <button class="secondary" data-add-type="tickRing">+ 눈금 링</button>
+              <button class="secondary" data-add-type="triangleRing">+ 삼각 링</button>
+              <button class="secondary" data-add-type="gearRing">+ 기어 링</button>
+              <button class="secondary" data-add-type="spokes">+ 방사선</button>
+              <button class="secondary" data-add-type="polygon">+ 다각형</button>
+              <button class="secondary" data-add-type="star">+ 별형</button>
+              <button class="secondary" data-add-type="runeRing">+ 룬 링</button>
+              <button class="secondary" data-add-type="textRing">+ 텍스트 링</button>
+              <button class="secondary" data-add-type="centerSymbol">+ 중심 심볼</button>
+            </div>
+          </div>
+
+          <div class="chip-row">
+            <div class="chip">Tick Ring</div>
+            <div class="chip">Triangle Ring</div>
+            <div class="chip">Gear Ring</div>
+            <div class="chip">Complexity</div>
+            <div class="chip">Guide Overlay</div>
+          </div>
+
+          <div class="notice">
+            <strong>v6 핵심</strong><br />
+            이제 생성 스타일 이름이 더 직관적으로 정리되었고, 각 스타일은 고유한 생성 규칙에 따라 절차적으로 샘플 마법진을 즉시 보여줍니다.
+          </div>
+        </div>
+      </aside>
+
+      <aside class="panel">
+        <div class="panel-inner stack">
+          <h2 class="panel-title">레이어 관리</h2>
+          <div class="control">
+            <label for="layerGroupFilterSelect">그룹 필터</label>
+            <select id="layerGroupFilterSelect">
+              <option value="all">전체 레이어</option>
+              <option value="rings">링 / 원형</option>
+              <option value="geometry">기하 문양</option>
+              <option value="ornaments">장식</option>
+              <option value="runes">룬 / 텍스트</option>
+              <option value="core">중심</option>
+            </select>
+            <div class="small-actions">
+              <button class="secondary" id="showGroupBtn">현재 그룹 표시</button>
+              <button class="secondary" id="hideGroupBtn">현재 그룹 숨김</button>
+            </div>
+          </div>
+          <div class="layer-list" id="layerList"></div>
+
+          <div class="small-actions">
+            <button class="secondary" id="duplicateLayerBtn">복제</button>
+            <button class="secondary" id="moveLayerUpBtn">위로</button>
+            <button class="secondary" id="moveLayerDownBtn">아래로</button>
+            <button class="secondary" id="toggleLockBtn">잠금/해제</button>
+            <button class="danger" id="deleteLayerBtn">삭제</button>
+          </div>
+
+          <div class="small-actions">
+            <button class="secondary" id="downloadSelectedLayerPngBtn">선택 레이어 PNG</button>
+            <button class="secondary" id="downloadSelectedLayerSvgBtn">선택 레이어 SVG</button>
+          </div>
+
+          <div class="small-actions">
+            <button class="secondary" id="downloadAllLayersPngBtn">모든 레이어 PNG</button>
+            <button class="secondary" id="downloadAllLayersSvgBtn">모든 레이어 SVG</button>
+          </div>
+
+          <div class="small-actions">
+            <button class="secondary" id="downloadMergedPngBtn">전체 합본 PNG</button>
+            <button class="secondary" id="downloadMergedSvgBtn">전체 합본 SVG</button>
+          </div>
+
+          <div class="footer-note">
+            모든 레이어 PNG/SVG는 각 레이어를 개별 파일로 순차 저장합니다. 브라우저에서 다중 다운로드 허용이 필요할 수 있습니다.<br />
+            전체 합본 PNG/SVG는 현재 표시 중인 레이어들을 모두 합쳐 1장의 파일로 저장합니다.
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel preview-panel">
+        <div class="panel-title">미리보기 / 레이어 속성</div>
+        <div class="preview-wrap"><div id="preview"></div></div>
+        <div class="panel-inner stack">
+          <div id="propertyEditor"></div>
+          <div class="footer-note">
+            Pro v6는 스타일 이름을 게임 제작 관점에서 더 이해하기 쉽게 정리한 버전입니다.
+            테스트해보고 부족한 부분을 말씀해주시면 v6에서 더 세밀하게 확장하겠습니다.
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    const WHITE = '#FFFFFF';
+    const DEFAULT_BG = '#08111d';
+    const USER_PRESET_KEY = 'magic-circle-pro-v5-user-presets';
+    const LAYER_GROUPS = {
+      rings: '링 / 원형',
+      geometry: '기하 문양',
+      ornaments: '장식',
+      runes: '룬 / 텍스트',
+      core: '중심'
+    };
+
+    function inferLayerGroup(type) {
+      if (['circle', 'arcRing', 'spokes'].includes(type)) return 'rings';
+      if (['polygon', 'star', 'gearRing'].includes(type)) return 'geometry';
+      if (['nodeRing', 'chainRing', 'tickRing', 'triangleRing'].includes(type)) return 'ornaments';
+      if (['runeRing', 'textRing'].includes(type)) return 'runes';
+      if (['centerSymbol'].includes(type)) return 'core';
+      return 'ornaments';
+    }
+
+    const GLYPH_SETS = {
+      elder: 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ',
+      sacred: '✚✛✜✠✢✣✤✥✦✧❂❈❉✪✫✬✭✮',
+      alchemy: '☿♀♁♂♃♄☉☽△▽◇○◎◌◍◐◑◒◓',
+      void: '☾☽✶✷✸✹✺✻✼✽✾❂❃❈❉❊',
+      celestial: '☉☽☿♀♂♃♄☊☋⚶⚵⚸⚷⚹⚺✶✷✴✹✺',
+      tech: '⌁⌂⌘⌬⌭⌮⌯⌰⌱⌲⌳⌴⌵⍟⍣⎈⏣',
+      barrier: '⊕⊗⊙⊛⊜⊝⊞⊟⊠⊡⌘⌬◇○◎✶',
+      stars: '✦✧✩✪✫✬✭✮✯✺✹✸✷✶✵✴✳✲✱✰',
+      elemental: '△▽☼☾☽Ϟ❄✷✹✺✦✧◈◎◇'
+    };
+
+    function uid() { return 'layer_' + Math.random().toString(36).slice(2, 11); }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function escapeXml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;'); }
+    function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+    function mulberry32(seed) {
+      return function() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function polar(cx, cy, r, deg) {
+      const rad = (deg - 90) * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+    function describeArc(cx, cy, r, startDeg, endDeg) {
+      const start = polar(cx, cy, r, startDeg);
+      const end = polar(cx, cy, r, endDeg);
+      const delta = ((endDeg - startDeg) % 360 + 360) % 360;
+      const largeArcFlag = delta > 180 ? 1 : 0;
+      return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r.toFixed(2)} ${r.toFixed(2)} 0 ${largeArcFlag} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
+    }
+    function polygonPath(cx, cy, radius, points, rotation = 0, skip = 1) {
+      const nodes = [];
+      for (let i = 0; i < points; i++) nodes.push(polar(cx, cy, radius, rotation + (360 / points) * i));
+      if (skip <= 1) return nodes.map((p, i) => `${i===0?'M':'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
+      const ordered = []; let idx = 0; const visited = new Set();
+      for (let i = 0; i < points; i++) {
+        ordered.push(nodes[idx]); visited.add(idx); idx = (idx + skip) % points; if (visited.has(idx) && i < points - 1) break;
+      }
+      return ordered.map((p, i) => `${i===0?'M':'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ') + ' Z';
+    }
+    function starPath(cx, cy, radius, points, innerRatio, rotation = 0) {
+      let d = ''; const total = points * 2;
+      for (let i = 0; i < total; i++) {
+        const r = i % 2 === 0 ? radius : radius * innerRatio;
+        const p = polar(cx, cy, r, rotation + (360 / total) * i);
+        d += `${i===0?'M':'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)} `;
+      }
+      return d + 'Z';
+    }
+    function gearPath(cx, cy, radius, toothCount, toothDepth, rotation = 0) {
+      let d = '';
+      const total = toothCount * 2;
+      for (let i = 0; i < total; i++) {
+        const isOuter = i % 2 === 0;
+        const r = radius + (isOuter ? toothDepth : 0);
+        const p = polar(cx, cy, r, rotation + (360 / total) * i);
+        d += `${i===0?'M':'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)} `;
+      }
+      return d + 'Z';
+    }
+    function ringTextChars(text, repeat) {
+      const safe = (text || '').trim();
+      if (!safe) return [];
+      return Array.from(safe.repeat(Math.max(1, repeat)));
+    }
+
+    function layerCircle(name, options = {}) {
+      return { id: uid(), type: 'circle', name, visible: true, locked: false, radius: options.radius ?? 380, strokeWidth: options.strokeWidth ?? 2, dashA: options.dashA ?? 0, dashB: options.dashB ?? 0, opacity: options.opacity ?? 0.9 };
+    }
+    function layerArcRing(name, options = {}) {
+      return { id: uid(), type: 'arcRing', name, visible: true, locked: false, radius: options.radius ?? 320, arcCount: options.arcCount ?? 8, arcLength: options.arcLength ?? 22, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 3, opacity: options.opacity ?? 0.85 };
+    }
+    function layerNodeRing(name, options = {}) {
+      return { id: uid(), type: 'nodeRing', name, visible: true, locked: false, radius: options.radius ?? 300, nodeCount: options.nodeCount ?? 16, nodeSize: options.nodeSize ?? 6, filled: options.filled ?? true, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 2, opacity: options.opacity ?? 0.85 };
+    }
+    function layerChainRing(name, options = {}) {
+      return { id: uid(), type: 'chainRing', name, visible: true, locked: false, radius: options.radius ?? 280, linkCount: options.linkCount ?? 14, linkWidth: options.linkWidth ?? 20, linkHeight: options.linkHeight ?? 34, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 2, opacity: options.opacity ?? 0.8 };
+    }
+    function layerTickRing(name, options = {}) {
+      return { id: uid(), type: 'tickRing', name, visible: true, locked: false, radius: options.radius ?? 320, tickCount: options.tickCount ?? 36, tickLength: options.tickLength ?? 14, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 1.6, everyOtherLong: options.everyOtherLong ?? true, opacity: options.opacity ?? 0.78 };
+    }
+    function layerTriangleRing(name, options = {}) {
+      return { id: uid(), type: 'triangleRing', name, visible: true, locked: false, radius: options.radius ?? 300, triangleCount: options.triangleCount ?? 12, triangleSize: options.triangleSize ?? 18, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 1.8, filled: options.filled ?? false, opacity: options.opacity ?? 0.8 };
+    }
+    function layerGearRing(name, options = {}) {
+      return { id: uid(), type: 'gearRing', name, visible: true, locked: false, radius: options.radius ?? 280, toothCount: options.toothCount ?? 18, toothDepth: options.toothDepth ?? 16, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 1.8, opacity: options.opacity ?? 0.8 };
+    }
+    function layerSpokes(name, options = {}) {
+      return { id: uid(), type: 'spokes', name, visible: true, locked: false, count: options.count ?? 16, innerRadius: options.innerRadius ?? 120, outerRadius: options.outerRadius ?? 390, strokeWidth: options.strokeWidth ?? 2, everyOtherShorter: options.everyOtherShorter ?? true, opacity: options.opacity ?? 0.7 };
+    }
+    function layerPolygon(name, options = {}) {
+      return { id: uid(), type: 'polygon', name, visible: true, locked: false, radius: options.radius ?? 300, points: options.points ?? 6, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 2, skip: options.skip ?? 1, opacity: options.opacity ?? 0.8 };
+    }
+    function layerStar(name, options = {}) {
+      return { id: uid(), type: 'star', name, visible: true, locked: false, radius: options.radius ?? 250, points: options.points ?? 8, innerRatio: options.innerRatio ?? 0.5, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 2, opacity: options.opacity ?? 0.75 };
+    }
+    function layerRuneRing(name, options = {}) {
+      return { id: uid(), type: 'runeRing', name, visible: true, locked: false, radius: options.radius ?? 360, glyphSet: options.glyphSet ?? GLYPH_SETS.elder, glyphCount: options.glyphCount ?? 24, fontSize: options.fontSize ?? 28, rotationOffset: options.rotationOffset ?? 0, opacity: options.opacity ?? 0.95, fontFamily: options.fontFamily ?? 'serif', direction: options.direction ?? 'outward', clockwise: options.clockwise ?? true };
+    }
+    function layerTextRing(name, options = {}) {
+      return { id: uid(), type: 'textRing', name, visible: true, locked: false, radius: options.radius ?? 340, text: options.text ?? 'ARCANE SEAL ✦ ', repeat: options.repeat ?? 2, fontSize: options.fontSize ?? 20, rotationOffset: options.rotationOffset ?? 0, opacity: options.opacity ?? 0.92, rotateGlyphs: options.rotateGlyphs ?? true, fontFamily: options.fontFamily ?? 'serif', direction: options.direction ?? 'outward', clockwise: options.clockwise ?? true };
+    }
+    function layerCenterSymbol(name, options = {}) {
+      return { id: uid(), type: 'centerSymbol', name, visible: true, locked: false, symbol: options.symbol ?? '✦', fontSize: options.fontSize ?? 48, ringRadius: options.ringRadius ?? 56, strokeWidth: options.strokeWidth ?? 2.4, opacity: options.opacity ?? 0.95, fontFamily: options.fontFamily ?? 'serif' };
+    }
+
+    const STYLE_PRESETS = {
+      arcane: {
+        name: '기본 마법진', desc: '가장 균형 잡힌 표준형 구조',
+        build() { return [
+          layerCircle('외곽 링', { radius: 430, strokeWidth: 3, opacity: 0.95 }),
+          layerArcRing('외곽 원호', { radius: 400, arcCount: 10, arcLength: 18, strokeWidth: 2.4, opacity: 0.8 }),
+          layerTickRing('눈금 장식', { radius: 382, tickCount: 32, tickLength: 12, strokeWidth: 1.4, opacity: 0.65 }),
+          layerSpokes('방사선', { count: 16, innerRadius: 130, outerRadius: 400, strokeWidth: 2, opacity: 0.72 }),
+          layerPolygon('다각 문양', { radius: 315, points: 6, strokeWidth: 2, opacity: 0.82 }),
+          layerRuneRing('외곽 룬', { radius: 355, glyphSet: GLYPH_SETS.elder, glyphCount: 28, fontSize: 30, opacity: 0.95 }),
+          layerCenterSymbol('중심 심볼', { symbol: '✦', fontSize: 48, ringRadius: 56, strokeWidth: 2.5, opacity: 0.95 })
+        ]; }
+      },
+      infernal: {
+        name: '공격 / 의식 마법진', desc: '날카로운 오각성 중심의 공격형 구조',
+        build() { return [
+          layerCircle('외곽 링', { radius: 430, strokeWidth: 3.5, opacity: 0.95 }),
+          layerTriangleRing('가시 삼각 링', { radius: 396, triangleCount: 10, triangleSize: 18, strokeWidth: 1.8, opacity: 0.72 }),
+          layerRuneRing('바깥 룬', { radius: 385, glyphSet: GLYPH_SETS.alchemy, glyphCount: 24, fontSize: 28, opacity: 0.95 }),
+          layerPolygon('오각성', { radius: 320, points: 5, rotation: 90, skip: 2, strokeWidth: 3, opacity: 0.9 }),
+          layerArcRing('절단 원호', { radius: 255, arcCount: 5, arcLength: 28, rotation: 18, strokeWidth: 2.4, opacity: 0.72 }),
+          layerCenterSymbol('중심 심볼', { symbol: '⛧', fontSize: 52, ringRadius: 60, strokeWidth: 2.5, opacity: 0.95 })
+        ]; }
+      },
+      holy: {
+        name: '보호 결계 마법진', desc: '정돈된 기하 구조의 방어형 결계',
+        build() { return [
+          layerCircle('광륜 링', { radius: 430, strokeWidth: 3, opacity: 0.95 }),
+          layerNodeRing('광휘 노드', { radius: 392, nodeCount: 24, nodeSize: 5, filled: true, strokeWidth: 2, opacity: 0.8 }),
+          layerTickRing('질서 눈금', { radius: 356, tickCount: 24, tickLength: 10, strokeWidth: 1.2, opacity: 0.7, everyOtherLong: false }),
+          layerPolygon('육각 문양', { radius: 328, points: 6, rotation: 30, strokeWidth: 2.3, opacity: 0.76 }),
+          layerPolygon('12각 문양', { radius: 255, points: 12, rotation: 15, strokeWidth: 1.8, opacity: 0.68, skip: 5 }),
+          layerRuneRing('찬가 룬', { radius: 350, glyphSet: GLYPH_SETS.sacred, glyphCount: 30, fontSize: 28, opacity: 0.94 }),
+          layerCenterSymbol('중심 광휘', { symbol: '☼', fontSize: 50, ringRadius: 64, strokeWidth: 2.4, opacity: 0.95 })
+        ]; }
+      },
+      mechanical: {
+        name: '기계 마법진', desc: '기어와 분절 링 중심의 기계형 구조',
+        build() { return [
+          layerCircle('기계 외곽', { radius: 430, strokeWidth: 2.4, dashA: 16, dashB: 8, opacity: 0.92 }),
+          layerGearRing('기어 외곽', { radius: 392, toothCount: 20, toothDepth: 15, strokeWidth: 1.6, opacity: 0.75 }),
+          layerArcRing('분절 원호', { radius: 360, arcCount: 12, arcLength: 14, strokeWidth: 3, opacity: 0.82 }),
+          layerPolygon('팔각 구조', { radius: 320, points: 8, rotation: 22.5, strokeWidth: 2.1, opacity: 0.78 }),
+          layerNodeRing('정밀 노드', { radius: 265, nodeCount: 16, nodeSize: 4.5, filled: false, strokeWidth: 1.8, opacity: 0.7 }),
+          layerRuneRing('기계 글리프', { radius: 348, glyphSet: GLYPH_SETS.tech, glyphCount: 24, fontSize: 26, opacity: 0.92 }),
+          layerCenterSymbol('중심 코어', { symbol: '⌬', fontSize: 46, ringRadius: 56, strokeWidth: 2.2, opacity: 0.95 })
+        ]; }
+      },
+      voidgate: {
+        name: '포털 마법진', desc: '복층 링과 다중 글리프로 구성된 차원문형',
+        build() { return [
+          layerCircle('외곽 포털', { radius: 430, strokeWidth: 2.4, opacity: 0.95 }),
+          layerArcRing('포털 원호', { radius: 398, arcCount: 9, arcLength: 20, strokeWidth: 2.1, opacity: 0.84 }),
+          layerRuneRing('외곽 글리프', { radius: 372, glyphSet: GLYPH_SETS.void, glyphCount: 32, fontSize: 27, opacity: 0.95 }),
+          layerPolygon('9각 문양', { radius: 310, points: 9, strokeWidth: 2, opacity: 0.76, skip: 2 }),
+          layerRuneRing('내부 글리프', { radius: 284, glyphSet: GLYPH_SETS.celestial, glyphCount: 20, fontSize: 24, rotationOffset: 9, opacity: 0.80, direction: 'inward' }),
+          layerCenterSymbol('중심 포털', { symbol: '⍟', fontSize: 54, ringRadius: 64, strokeWidth: 2.2, opacity: 0.95 })
+        ]; }
+      },
+      royal: {
+        name: '의식 / 문장 마법진', desc: '장식 링과 문장 텍스트 중심의 의식형',
+        build() { return [
+          layerCircle('외곽 장식 링', { radius: 430, strokeWidth: 3, opacity: 0.95 }),
+          layerChainRing('왕실 사슬', { radius: 390, linkCount: 16, linkWidth: 18, linkHeight: 30, strokeWidth: 1.8, opacity: 0.8 }),
+          layerTextRing('의식 문장', { radius: 360, text: 'ARCANUM REGIUM ✦ ETERNAL SEAL ✦ ', repeat: 2, fontSize: 20, opacity: 0.92, rotateGlyphs: true }),
+          layerTriangleRing('왕실 삼각 문양', { radius: 318, triangleCount: 20, triangleSize: 12, strokeWidth: 1.4, opacity: 0.6 }),
+          layerStar('장식 별형', { radius: 220, points: 8, innerRatio: 0.42, rotation: 22.5, strokeWidth: 1.8, opacity: 0.70 }),
+          layerCenterSymbol('중심 상징', { symbol: '✪', fontSize: 50, ringRadius: 60, strokeWidth: 2.4, opacity: 0.95 })
+        ]; }
+      },
+      frost: {
+        name: '얼음 마법진', desc: '육각 구조와 결정감이 강한 냉기형',
+        build() { return [
+          layerCircle('외곽 서리 링', { radius: 430, strokeWidth: 2.8, opacity: 0.94 }),
+          layerNodeRing('서리 노드', { radius: 392, nodeCount: 12, nodeSize: 7, filled: false, strokeWidth: 2, opacity: 0.78 }),
+          layerTriangleRing('얼음 결정 링', { radius: 350, triangleCount: 12, triangleSize: 16, strokeWidth: 1.5, opacity: 0.7 }),
+          layerPolygon('외곽 육각', { radius: 332, points: 6, rotation: 30, strokeWidth: 2.2, opacity: 0.82 }),
+          layerRuneRing('얼음 룬', { radius: 360, glyphSet: GLYPH_SETS.elemental, glyphCount: 24, fontSize: 28, opacity: 0.92 }),
+          layerCenterSymbol('빙결 코어', { symbol: '❄', fontSize: 52, ringRadius: 62, strokeWidth: 2.2, opacity: 0.95 })
+        ]; }
+      },
+      barrier: {
+        name: '봉인 마법진', desc: '안정감이 강한 방어 / 봉인 구조',
+        build() { return [
+          layerCircle('결계 외곽', { radius: 430, strokeWidth: 3, opacity: 0.95 }),
+          layerTickRing('보호 눈금', { radius: 404, tickCount: 40, tickLength: 10, strokeWidth: 1.2, opacity: 0.7 }),
+          layerArcRing('결계 절단 링', { radius: 392, arcCount: 8, arcLength: 16, strokeWidth: 2.2, opacity: 0.78 }),
+          layerRuneRing('봉인 룬', { radius: 378, glyphSet: GLYPH_SETS.barrier, glyphCount: 26, fontSize: 28, opacity: 0.94 }),
+          layerPolygon('보호 육각', { radius: 312, points: 6, rotation: 30, strokeWidth: 2.2, opacity: 0.78 }),
+          layerCenterSymbol('봉인 핵', { symbol: '⊕', fontSize: 50, ringRadius: 60, strokeWidth: 2.3, opacity: 0.95 })
+        ]; }
+      },
+      abyss: {
+        name: '어둠 / 심연 마법진', desc: '불규칙 다층 구조의 어둠 / 공허형',
+        build() { return [
+          layerCircle('심연 외곽', { radius: 430, strokeWidth: 2.6, opacity: 0.93 }),
+          layerChainRing('심연 체인', { radius: 388, linkCount: 18, linkWidth: 16, linkHeight: 28, strokeWidth: 1.6, opacity: 0.68 }),
+          layerRuneRing('공허 룬', { radius: 370, glyphSet: GLYPH_SETS.void, glyphCount: 30, fontSize: 27, opacity: 0.94, direction: 'inward' }),
+          layerPolygon('7각 문양', { radius: 310, points: 7, strokeWidth: 2.1, opacity: 0.74, skip: 2 }),
+          layerStar('불안정 별형', { radius: 228, points: 9, innerRatio: 0.36, strokeWidth: 1.7, opacity: 0.66 }),
+          layerCenterSymbol('심연 코어', { symbol: '☾', fontSize: 54, ringRadius: 64, strokeWidth: 2.1, opacity: 0.95 })
+        ]; }
+      },
+      storm: {
+        name: '번개 마법진', desc: '방사선과 원호가 강조된 전격형 구조',
+        build() { return [
+          layerCircle('폭풍 외곽', { radius: 430, strokeWidth: 2.8, opacity: 0.94 }),
+          layerSpokes('전격 방사선', { count: 24, innerRadius: 170, outerRadius: 408, strokeWidth: 1.8, everyOtherShorter: true, opacity: 0.72 }),
+          layerArcRing('전격 원호', { radius: 318, arcCount: 12, arcLength: 12, rotation: 8, strokeWidth: 2.6, opacity: 0.74 }),
+          layerTriangleRing('전기 삼각 링', { radius: 375, triangleCount: 24, triangleSize: 10, strokeWidth: 1.4, opacity: 0.68 }),
+          layerRuneRing('폭풍 룬', { radius: 362, glyphSet: GLYPH_SETS.elemental, glyphCount: 28, fontSize: 28, opacity: 0.92 }),
+          layerCenterSymbol('전격 코어', { symbol: 'ϟ', fontSize: 54, ringRadius: 60, strokeWidth: 2.1, opacity: 0.95 })
+        ]; }
+      },
+      clockwork: {
+        name: '시계장치 마법진', desc: '눈금과 톱니가 밀도 높게 배치된 구조',
+        build() { return [
+          layerGearRing('외곽 기어', { radius: 410, toothCount: 24, toothDepth: 12, strokeWidth: 1.8, opacity: 0.8 }),
+          layerTickRing('세부 눈금', { radius: 372, tickCount: 48, tickLength: 10, strokeWidth: 1.2, opacity: 0.72 }),
+          layerCircle('정밀 링', { radius: 340, strokeWidth: 2.1, dashA: 10, dashB: 8, opacity: 0.8 }),
+          layerNodeRing('코어 노드', { radius: 266, nodeCount: 12, nodeSize: 5, filled: false, strokeWidth: 1.6, opacity: 0.7 }),
+          layerRuneRing('기계 룬', { radius: 312, glyphSet: GLYPH_SETS.tech, glyphCount: 22, fontSize: 24, opacity: 0.88 }),
+          layerCenterSymbol('중심 코어', { symbol: '⌘', fontSize: 48, ringRadius: 54, strokeWidth: 2.0, opacity: 0.95 })
+        ]; }
+      },
+      sigil: {
+        name: '인장 조합 마법진', desc: '삼각 / 눈금 / 룬 조합이 강조된 복합형 구조',
+        build() { return [
+          layerCircle('외곽 인장', { radius: 430, strokeWidth: 2.8, opacity: 0.95 }),
+          layerTriangleRing('외곽 삼각', { radius: 404, triangleCount: 18, triangleSize: 14, strokeWidth: 1.5, opacity: 0.72 }),
+          layerTickRing('내부 눈금', { radius: 358, tickCount: 36, tickLength: 12, strokeWidth: 1.4, opacity: 0.68 }),
+          layerRuneRing('인장 룬', { radius: 372, glyphSet: GLYPH_SETS.stars, glyphCount: 26, fontSize: 26, opacity: 0.92 }),
+          layerPolygon('내부 육망 구조', { radius: 268, points: 6, rotation: 0, strokeWidth: 2.1, opacity: 0.76, skip: 2 }),
+          layerCenterSymbol('중심 인장', { symbol: '⍟', fontSize: 50, ringRadius: 58, strokeWidth: 2.0, opacity: 0.95 })
+        ]; }
+      }
+    };
+
+    const state = {
+      canvasSize: 1024,
+      workspaceLayout: 'fit1080',
+      // 상단 문구를 코드에서 직접 수정하려면 아래 두 줄의 따옴표 안 문구를 바꾸면 됩니다.
+      headerBadge: '✦ KANDOL : Magic Circle Generator Pro v6',
+      headerTitle: '이펙트 마법진 제작 툴',
+      transparentBg: true,
+      showGuides: false,
+      guidesPreviewOnly: true,
+      layerGroupFilter: 'all',
+      seed: Math.floor(Math.random() * 999999),
+      preset: 'arcane',
+      variation: 45,
+      complexity: 60,
+      ornamentDensity: 55,
+      runeDensity: 55,
+      layers: [],
+      selectedLayerId: null,
+      undoStack: [],
+      redoStack: []
+    };
+
+    const preview = document.getElementById('preview');
+    const layerListEl = document.getElementById('layerList');
+    const propertyEditor = document.getElementById('propertyEditor');
+    const stylePresetSelect = document.getElementById('stylePresetSelect');
+    const stylePresetHint = document.getElementById('stylePresetHint');
+    const seedInput = document.getElementById('seedInput');
+    const canvasSizeSelect = document.getElementById('canvasSizeSelect');
+    const workspaceLayoutSelect = document.getElementById('workspaceLayoutSelect');
+    const headerBadgeText = document.getElementById('headerBadgeText');
+    const headerTitleText = document.getElementById('headerTitleText');
+    const transparentBgInput = document.getElementById('transparentBgInput');
+    const showGuidesInput = document.getElementById('showGuidesInput');
+    const guidesPreviewOnlyInput = document.getElementById('guidesPreviewOnlyInput');
+    const layerGroupFilterSelect = document.getElementById('layerGroupFilterSelect');
+    const projectFileInput = document.getElementById('projectFileInput');
+    const variationInput = document.getElementById('variationInput');
+    const variationLabel = document.getElementById('variationLabel');
+    const complexityInput = document.getElementById('complexityInput');
+    const complexityLabel = document.getElementById('complexityLabel');
+    const ornamentDensityInput = document.getElementById('ornamentDensityInput');
+    const ornamentDensityLabel = document.getElementById('ornamentDensityLabel');
+    const runeDensityInput = document.getElementById('runeDensityInput');
+    const runeDensityLabel = document.getElementById('runeDensityLabel');
+    const userPresetSelect = document.getElementById('userPresetSelect');
+
+    Object.entries(STYLE_PRESETS).forEach(([key, preset]) => {
+      const opt = document.createElement('option'); opt.value = key; opt.textContent = preset.name; stylePresetSelect.appendChild(opt);
+    });
+
+    function serializeCore() {
+      return JSON.stringify({
+        canvasSize: state.canvasSize,
+        workspaceLayout: state.workspaceLayout,
+        headerBadge: state.headerBadge,
+        headerTitle: state.headerTitle,
+        transparentBg: state.transparentBg,
+        showGuides: state.showGuides,
+        guidesPreviewOnly: state.guidesPreviewOnly,
+        layerGroupFilter: state.layerGroupFilter,
+        seed: state.seed,
+        preset: state.preset,
+        variation: state.variation,
+        complexity: state.complexity,
+        ornamentDensity: state.ornamentDensity,
+        runeDensity: state.runeDensity,
+        layers: state.layers,
+        selectedLayerId: state.selectedLayerId
+      });
+    }
+    function pushHistory() {
+      state.undoStack.push(serializeCore());
+      if (state.undoStack.length > 80) state.undoStack.shift();
+      state.redoStack = [];
+    }
+    function restoreFromSerialized(serialized) {
+      const data = JSON.parse(serialized);
+      state.canvasSize = Number(data.canvasSize) || 1024;
+      state.workspaceLayout = data.workspaceLayout || 'fit1080';
+      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+      state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
+      state.transparentBg = !!data.transparentBg;
+      state.showGuides = !!data.showGuides;
+      state.guidesPreviewOnly = data.guidesPreviewOnly !== false;
+      state.layerGroupFilter = data.layerGroupFilter || 'all';
+      state.guidesPreviewOnly = data.guidesPreviewOnly !== false;
+      state.layerGroupFilter = data.layerGroupFilter || 'all';
+      state.seed = Number(data.seed) || 0;
+      state.preset = STYLE_PRESETS[data.preset] ? data.preset : 'arcane';
+      state.variation = Number.isFinite(data.variation) ? data.variation : 45;
+      state.complexity = Number.isFinite(data.complexity) ? data.complexity : 60;
+      state.ornamentDensity = Number.isFinite(data.ornamentDensity) ? data.ornamentDensity : 55;
+      state.runeDensity = Number.isFinite(data.runeDensity) ? data.runeDensity : 55;
+      state.layers = Array.isArray(data.layers) ? data.layers : [];
+      state.selectedLayerId = data.selectedLayerId || state.layers[0]?.id || null;
+    }
+    function undo() {
+      if (!state.undoStack.length) return;
+      state.redoStack.push(serializeCore());
+      restoreFromSerialized(state.undoStack.pop());
+      render();
+    }
+    function redo() {
+      if (!state.redoStack.length) return;
+      state.undoStack.push(serializeCore());
+      restoreFromSerialized(state.redoStack.pop());
+      render();
+    }
+
+
+    function normalizeLayer(layer) {
+      if (!layer.id) layer.id = uid();
+      if (layer.visible === undefined) layer.visible = true;
+      if (layer.locked === undefined) layer.locked = false;
+      if (!layer.group) layer.group = inferLayerGroup(layer.type);
+      return layer;
+    }
+
+    function normalizeAllLayers() {
+      state.layers.forEach(normalizeLayer);
+    }
+
+    function selectedLayer() { return state.layers.find(l => l.id === state.selectedLayerId) || null; }
+    function cloneLayer(layer) { return JSON.parse(JSON.stringify({ ...layer, id: uid(), name: layer.name + ' 복제' })); }
+
+    function layerSummary(layer) {
+      if (layer.type === 'circle') return `반지름 ${layer.radius} / 두께 ${layer.strokeWidth}`;
+      if (layer.type === 'arcRing') return `원호 ${layer.arcCount}개 / R ${layer.radius}`;
+      if (layer.type === 'nodeRing') return `노드 ${layer.nodeCount}개 / R ${layer.radius}`;
+      if (layer.type === 'chainRing') return `체인 ${layer.linkCount}개 / R ${layer.radius}`;
+      if (layer.type === 'tickRing') return `눈금 ${layer.tickCount}개 / 길이 ${layer.tickLength}`;
+      if (layer.type === 'triangleRing') return `삼각 ${layer.triangleCount}개 / 크기 ${layer.triangleSize}`;
+      if (layer.type === 'gearRing') return `톱니 ${layer.toothCount}개 / 깊이 ${layer.toothDepth}`;
+      if (layer.type === 'spokes') return `개수 ${layer.count} / ${layer.innerRadius}~${layer.outerRadius}`;
+      if (layer.type === 'polygon') return `${layer.points}각 / skip ${layer.skip} / R ${layer.radius}`;
+      if (layer.type === 'star') return `${layer.points}점 별형 / inner ${layer.innerRatio}`;
+      if (layer.type === 'runeRing') return `글리프 ${layer.glyphCount}개 / ${layer.direction} / ${layer.clockwise ? 'CW' : 'CCW'}`;
+      if (layer.type === 'textRing') return `텍스트 ${Math.max(1, layer.repeat)}회 / ${layer.direction} / ${layer.clockwise ? 'CW' : 'CCW'}`;
+      if (layer.type === 'centerSymbol') return `심볼 ${layer.symbol} / 크기 ${layer.fontSize}`;
+      return '';
+    }
+
+    function renderLayerList() {
+      layerListEl.innerHTML = '';
+      if (!state.layers.length) {
+        layerListEl.innerHTML = `<div class="empty-box">레이어가 없습니다. 절차적 생성 또는 빠른 레이어 추가를 사용하세요.</div>`;
+        return;
+      }
+      const listLayers = state.layerGroupFilter === 'all'
+        ? state.layers
+        : state.layers.filter(layer => (layer.group || inferLayerGroup(layer.type)) === state.layerGroupFilter);
+      if (!listLayers.length) {
+        layerListEl.innerHTML = `<div class="empty-box">현재 그룹에 표시할 레이어가 없습니다.</div>`;
+        return;
+      }
+      listLayers.forEach(layer => {
+        const item = document.createElement('div');
+        item.className = 'layer-item' + (layer.id === state.selectedLayerId ? ' active' : '') + (layer.locked ? ' locked' : '');
+        item.addEventListener('click', () => { state.selectedLayerId = layer.id; render(); });
+
+        const eye = document.createElement('div'); eye.className = 'layer-eye'; eye.textContent = layer.visible ? '◉' : '○';
+        eye.addEventListener('click', (e) => { e.stopPropagation(); pushHistory(); layer.visible = !layer.visible; render(); });
+
+        const lock = document.createElement('div'); lock.className = 'layer-lock'; lock.textContent = layer.locked ? '🔒' : '🔓';
+        lock.addEventListener('click', (e) => { e.stopPropagation(); pushHistory(); layer.locked = !layer.locked; render(); });
+
+        const main = document.createElement('div'); main.className = 'layer-main'; main.innerHTML = `<div class="layer-name">${escapeHtml(layer.name)} <span class="group-pill">${escapeHtml(LAYER_GROUPS[layer.group || inferLayerGroup(layer.type)] || '기타')}</span></div><div class="layer-meta">${layerSummary(layer)}</div>`;
+        const type = document.createElement('div'); type.className = 'layer-type'; type.textContent = layer.type;
+        item.append(eye, lock, main, type);
+        layerListEl.appendChild(item);
+      });
+    }
+
+    function renderLayerSvg(layer, cx, cy, scale) {
+      const sw = (layer.strokeWidth ?? 2) * scale;
+      const opacity = layer.opacity ?? 1;
+
+      if (layer.type === 'circle') {
+        const dash = layer.dashA > 0 && layer.dashB > 0 ? `stroke-dasharray="${layer.dashA * scale} ${layer.dashB * scale}"` : '';
+        return `<circle cx="${cx}" cy="${cy}" r="${layer.radius * scale}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}" ${dash}/>`;
+      }
+      if (layer.type === 'arcRing') {
+        let out = '';
+        const count = Math.max(1, layer.arcCount);
+        for (let i = 0; i < count; i++) {
+          const start = layer.rotation + i * (360 / count);
+          const end = start + layer.arcLength;
+          out += `<path d="${describeArc(cx, cy, layer.radius * scale, start, end)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'nodeRing') {
+        let out = '';
+        const count = Math.max(1, layer.nodeCount);
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotation + i * (360 / count);
+          const p = polar(cx, cy, layer.radius * scale, deg);
+          out += `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="${(layer.nodeSize * scale).toFixed(2)}" fill="${layer.filled ? WHITE : 'none'}" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'chainRing') {
+        let out = '';
+        const count = Math.max(1, layer.linkCount);
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotation + i * (360 / count);
+          const p = polar(cx, cy, layer.radius * scale, deg);
+          out += `<ellipse cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" rx="${(layer.linkWidth * 0.5 * scale).toFixed(2)}" ry="${(layer.linkHeight * 0.5 * scale).toFixed(2)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}" transform="rotate(${deg} ${p.x.toFixed(2)} ${p.y.toFixed(2)})"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'tickRing') {
+        let out = '';
+        const count = Math.max(1, layer.tickCount);
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotation + i * (360 / count);
+          const len = layer.everyOtherLong && i % 2 === 0 ? layer.tickLength * 1.5 : layer.tickLength;
+          const a = polar(cx, cy, layer.radius * scale, deg);
+          const b = polar(cx, cy, (layer.radius + len) * scale, deg);
+          out += `<path d="M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'triangleRing') {
+        let out = '';
+        const count = Math.max(1, layer.triangleCount);
+        const step = 360 / count;
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotation + i * step;
+          const p1 = polar(cx, cy, layer.radius * scale, deg - step * 0.18);
+          const p2 = polar(cx, cy, layer.radius * scale, deg + step * 0.18);
+          const tip = polar(cx, cy, (layer.radius + layer.triangleSize) * scale, deg);
+          out += `<path d="M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} L ${tip.x.toFixed(2)} ${tip.y.toFixed(2)} L ${p2.x.toFixed(2)} ${p2.y.toFixed(2)} Z" fill="${layer.filled ? WHITE : 'none'}" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'gearRing') {
+        const d = gearPath(cx, cy, layer.radius * scale, Math.max(3, layer.toothCount), layer.toothDepth * scale, layer.rotation);
+        return `<path d="${d}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+      }
+      if (layer.type === 'spokes') {
+        const count = Math.max(1, layer.count); let out = '';
+        for (let i = 0; i < count; i++) {
+          const deg = (360 / count) * i;
+          const innerR = (layer.everyOtherShorter && i % 2 === 1) ? layer.innerRadius + (layer.outerRadius - layer.innerRadius) * 0.38 : layer.innerRadius;
+          const a = polar(cx, cy, innerR * scale, deg); const b = polar(cx, cy, layer.outerRadius * scale, deg);
+          out += `<path d="M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+        }
+        return out;
+      }
+      if (layer.type === 'polygon') return `<path d="${polygonPath(cx, cy, layer.radius * scale, Math.max(3, layer.points), layer.rotation, clamp(layer.skip,1,Math.max(1,layer.points-1)))}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+      if (layer.type === 'star') return `<path d="${starPath(cx, cy, layer.radius * scale, Math.max(3, layer.points), clamp(layer.innerRatio, 0.05, 0.95), layer.rotation)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+      if (layer.type === 'runeRing') {
+        const glyphs = Array.from(layer.glyphSet || '✦');
+        const count = Math.max(1, layer.glyphCount); const fontSize = layer.fontSize * scale;
+        const directionSign = layer.clockwise ? 1 : -1; let out = '';
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotationOffset + directionSign * ((360 / count) * i);
+          const p = polar(cx, cy, layer.radius * scale, deg);
+          const ch = glyphs[i % glyphs.length] || '✦';
+          const rotate = layer.direction === 'inward' ? deg + 180 : deg;
+          out += `<text x="${p.x.toFixed(2)}" y="${p.y.toFixed(2)}" fill="${WHITE}" font-size="${fontSize}" font-family="${escapeXml(layer.fontFamily || 'serif')}" text-anchor="middle" dominant-baseline="middle" opacity="${opacity}" transform="rotate(${rotate} ${p.x.toFixed(2)} ${p.y.toFixed(2)})">${escapeXml(ch)}</text>`;
+        }
+        return out;
+      }
+      if (layer.type === 'textRing') {
+        const chars = ringTextChars(layer.text, layer.repeat); const count = chars.length || 1;
+        const fontSize = layer.fontSize * scale; const sign = layer.clockwise ? 1 : -1; let out = '';
+        for (let i = 0; i < count; i++) {
+          const deg = layer.rotationOffset + sign * ((360 / count) * i);
+          const p = polar(cx, cy, layer.radius * scale, deg);
+          const ch = chars[i] || ' ';
+          let transform = '';
+          if (layer.rotateGlyphs) {
+            const rotate = layer.direction === 'inward' ? deg + 180 : deg;
+            transform = ` transform="rotate(${rotate} ${p.x.toFixed(2)} ${p.y.toFixed(2)})"`;
+          }
+          out += `<text x="${p.x.toFixed(2)}" y="${p.y.toFixed(2)}" fill="${WHITE}" font-size="${fontSize}" font-family="${escapeXml(layer.fontFamily || 'serif')}" text-anchor="middle" dominant-baseline="middle" opacity="${opacity}"${transform}>${escapeXml(ch)}</text>`;
+        }
+        return out;
+      }
+      if (layer.type === 'centerSymbol') {
+        const ringR = layer.ringRadius * scale; const fontSize = layer.fontSize * scale;
+        return `<circle cx="${cx}" cy="${cy}" r="${ringR}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>
+          <text x="${cx}" y="${(cy + fontSize * 0.12).toFixed(2)}" fill="${WHITE}" font-size="${fontSize}" font-family="${escapeXml(layer.fontFamily || 'serif')}" text-anchor="middle" dominant-baseline="middle" opacity="${opacity}">${escapeXml(layer.symbol || '✦')}</text>`;
+      }
+      return '';
+    }
+
+    function guideMarkup(size) {
+      if (!state.showGuides) return '';
+      const cx = size / 2, cy = size / 2;
+      return `
+        <g opacity="0.35" stroke="#7dd3fc" stroke-width="1" fill="none" stroke-dasharray="8 8">
+          <circle cx="${cx}" cy="${cy}" r="${size * 0.44}" />
+          <circle cx="${cx}" cy="${cy}" r="${size * 0.22}" />
+          <path d="M ${cx} 0 L ${cx} ${size}" />
+          <path d="M 0 ${cy} L ${size} ${cy}" />
+        </g>`;
+    }
+
+    function getSvgMarkup(onlyLayerId = null, includeGuides = true) {
+      const size = Number(state.canvasSize) || 1024;
+      const cx = size / 2; const cy = size / 2; const scale = size / 1024;
+      const defs = `<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+      const bg = state.transparentBg ? '' : `<rect width="${size}" height="${size}" fill="${DEFAULT_BG}"/>`;
+      const guides = includeGuides ? guideMarkup(size) : '';
+      const visibleLayers = state.layers.filter(l => l.visible && (!onlyLayerId || l.id === onlyLayerId));
+      const body = visibleLayers.map(layer => renderLayerSvg(layer, cx, cy, scale)).join('\n');
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${defs}${bg}${guides}<g filter="url(#glow)" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
+    }
+
+    function refreshPreviewOnly() {
+      preview.innerHTML = getSvgMarkup();
+      renderLayerList();
+    }
+
+
+    function renderPropertyEditor() {
+      const layer = selectedLayer();
+      if (!layer) { propertyEditor.innerHTML = `<div class="empty-box">편집할 레이어를 선택하세요.</div>`; return; }
+      propertyEditor.innerHTML = '';
+      const wrap = document.createElement('div'); wrap.className = 'stack';
+      wrap.innerHTML = `<h3 style="margin:0;font-size:16px;">선택 레이어 속성</h3>`;
+      if (layer.locked) {
+        const msg = document.createElement('div'); msg.className = 'locked-overlay'; msg.textContent = '이 레이어는 잠겨 있습니다. 속성 편집을 하려면 먼저 잠금을 해제하세요.'; wrap.appendChild(msg);
+      }
+      wrap.appendChild(makeTextInput('레이어 이름', layer.name, v => layer.name = v, layer.locked));
+      wrap.appendChild(makeOpacitySlider(layer, layer.locked));
+      wrap.appendChild(makeVisibleToggle(layer));
+      wrap.appendChild(makeLockToggle(layer));
+      wrap.appendChild(makeSelect('레이어 그룹', layer.group || inferLayerGroup(layer.type), [
+        {value:'rings', label:'링 / 원형'},
+        {value:'geometry', label:'기하 문양'},
+        {value:'ornaments', label:'장식'},
+        {value:'runes', label:'룬 / 텍스트'},
+        {value:'core', label:'중심'}
+      ], v => layer.group = v, layer.locked));
+
+      if (layer.type === 'circle') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 40, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeRange('dash A', layer.dashA, 0, 60, 1, v => layer.dashA = v, layer.locked));
+        wrap.appendChild(makeRange('dash B', layer.dashB, 0, 60, 1, v => layer.dashB = v, layer.locked));
+      }
+      if (layer.type === 'arcRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('원호 수량', layer.arcCount, 1, 48, 1, v => layer.arcCount = v, layer.locked));
+        wrap.appendChild(makeRange('원호 길이', layer.arcLength, 2, 120, 1, v => layer.arcLength = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
+      }
+      if (layer.type === 'nodeRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('노드 수량', layer.nodeCount, 1, 72, 1, v => layer.nodeCount = v, layer.locked));
+        wrap.appendChild(makeRange('노드 크기', layer.nodeSize, 1, 30, 0.5, v => layer.nodeSize = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeCheckbox('채움 사용', layer.filled, v => layer.filled = v, layer.locked));
+      }
+      if (layer.type === 'chainRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('체인 수량', layer.linkCount, 1, 48, 1, v => layer.linkCount = v, layer.locked));
+        wrap.appendChild(makeRange('체인 너비', layer.linkWidth, 4, 60, 1, v => layer.linkWidth = v, layer.locked));
+        wrap.appendChild(makeRange('체인 높이', layer.linkHeight, 4, 80, 1, v => layer.linkHeight = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+      }
+      if (layer.type === 'tickRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('눈금 수량', layer.tickCount, 1, 120, 1, v => layer.tickCount = v, layer.locked));
+        wrap.appendChild(makeRange('눈금 길이', layer.tickLength, 1, 40, 1, v => layer.tickLength = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.2, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeCheckbox('교차 길이 차등', layer.everyOtherLong, v => layer.everyOtherLong = v, layer.locked));
+      }
+      if (layer.type === 'triangleRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('삼각 수량', layer.triangleCount, 1, 80, 1, v => layer.triangleCount = v, layer.locked));
+        wrap.appendChild(makeRange('삼각 크기', layer.triangleSize, 2, 40, 1, v => layer.triangleSize = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.2, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeCheckbox('삼각 채움', layer.filled, v => layer.filled = v, layer.locked));
+      }
+      if (layer.type === 'gearRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('톱니 수량', layer.toothCount, 3, 72, 1, v => layer.toothCount = v, layer.locked));
+        wrap.appendChild(makeRange('톱니 깊이', layer.toothDepth, 1, 40, 1, v => layer.toothDepth = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.2, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+      }
+      if (layer.type === 'spokes') {
+        wrap.appendChild(makeRange('방사선 수량', layer.count, 1, 72, 1, v => layer.count = v, layer.locked));
+        wrap.appendChild(makeRange('내부 반지름', layer.innerRadius, 0, 450, 1, v => layer.innerRadius = v, layer.locked));
+        wrap.appendChild(makeRange('외부 반지름', layer.outerRadius, 10, 470, 1, v => layer.outerRadius = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeCheckbox('교차 길이 차등', layer.everyOtherShorter, v => layer.everyOtherShorter = v, layer.locked));
+      }
+      if (layer.type === 'polygon') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('꼭짓점 수', layer.points, 3, 20, 1, v => layer.points = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeRange('skip', layer.skip, 1, 10, 1, v => layer.skip = v, layer.locked));
+      }
+      if (layer.type === 'star') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('별 점 수', layer.points, 3, 20, 1, v => layer.points = v, layer.locked));
+        wrap.appendChild(makeRange('내부 비율', layer.innerRatio, 0.1, 0.9, 0.01, v => layer.innerRatio = v, layer.locked));
+        wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
+      }
+      if (layer.type === 'runeRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('글리프 수', layer.glyphCount, 1, 120, 1, v => layer.glyphCount = v, layer.locked));
+        wrap.appendChild(makeRange('폰트 크기', layer.fontSize, 8, 80, 1, v => layer.fontSize = v, layer.locked));
+        wrap.appendChild(makeRange('회전 오프셋', layer.rotationOffset, 0, 360, 1, v => layer.rotationOffset = v, layer.locked));
+        wrap.appendChild(makeTextInput('폰트 패밀리', layer.fontFamily, v => layer.fontFamily = v, layer.locked));
+        wrap.appendChild(makeSelect('문자 방향', layer.direction, [{value:'outward',label:'밖 방향'}, {value:'inward',label:'안 방향'}], v => layer.direction = v, layer.locked));
+        wrap.appendChild(makeSelect('배치 회전 방향', String(layer.clockwise), [{value:'true',label:'시계 방향'}, {value:'false',label:'반시계 방향'}], v => layer.clockwise = (v === 'true'), layer.locked));
+        wrap.appendChild(makeTextarea('글리프 세트', layer.glyphSet, v => layer.glyphSet = v, '직접 룬 / 심볼 문자열 입력 가능', layer.locked));
+      }
+      if (layer.type === 'textRing') {
+        wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeTextarea('텍스트', layer.text, v => layer.text = v, '링에 배치할 문장', layer.locked));
+        wrap.appendChild(makeRange('반복 횟수', layer.repeat, 1, 10, 1, v => layer.repeat = v, layer.locked));
+        wrap.appendChild(makeRange('폰트 크기', layer.fontSize, 8, 80, 1, v => layer.fontSize = v, layer.locked));
+        wrap.appendChild(makeRange('회전 오프셋', layer.rotationOffset, 0, 360, 1, v => layer.rotationOffset = v, layer.locked));
+        wrap.appendChild(makeTextInput('폰트 패밀리', layer.fontFamily, v => layer.fontFamily = v, layer.locked));
+        wrap.appendChild(makeCheckbox('문자 회전 적용', layer.rotateGlyphs, v => layer.rotateGlyphs = v, layer.locked));
+        wrap.appendChild(makeSelect('문자 방향', layer.direction, [{value:'outward',label:'밖 방향'}, {value:'inward',label:'안 방향'}], v => layer.direction = v, layer.locked));
+        wrap.appendChild(makeSelect('배치 회전 방향', String(layer.clockwise), [{value:'true',label:'시계 방향'}, {value:'false',label:'반시계 방향'}], v => layer.clockwise = (v === 'true'), layer.locked));
+      }
+      if (layer.type === 'centerSymbol') {
+        wrap.appendChild(makeTextInput('심볼', layer.symbol, v => layer.symbol = v, layer.locked));
+        wrap.appendChild(makeRange('심볼 크기', layer.fontSize, 8, 140, 1, v => layer.fontSize = v, layer.locked));
+        wrap.appendChild(makeRange('링 반지름', layer.ringRadius, 0, 180, 1, v => layer.ringRadius = v, layer.locked));
+        wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
+        wrap.appendChild(makeTextInput('폰트 패밀리', layer.fontFamily, v => layer.fontFamily = v, layer.locked));
+      }
+      propertyEditor.appendChild(wrap);
+    }
+
+    function makeControlShell(title, inputEl, hint) {
+      const div = document.createElement('div'); div.className = 'control';
+      const label = document.createElement('label'); label.textContent = title; div.appendChild(label); div.appendChild(inputEl);
+      if (hint) { const p = document.createElement('div'); p.className = 'hint'; p.textContent = hint; div.appendChild(p); }
+      return div;
+    }
+    function makeTextInput(title, value, setter, disabled = false) {
+      const input = document.createElement('input'); input.type = 'text'; input.value = value ?? ''; input.disabled = disabled;
+      input.addEventListener('focus', () => { if (!disabled) pushHistory(); }, { once: true });
+      input.addEventListener('input', () => { setter(input.value); refreshPreviewOnly(); });
+      return makeControlShell(title, input);
+    }
+    function makeTextarea(title, value, setter, hint, disabled = false) {
+      const el = document.createElement('textarea'); el.value = value ?? ''; el.disabled = disabled;
+      el.addEventListener('focus', () => { if (!disabled) pushHistory(); }, { once: true });
+      el.addEventListener('input', () => { setter(el.value); refreshPreviewOnly(); });
+      return makeControlShell(title, el, hint);
+    }
+    function formatValue(v) { return Number.isInteger(Number(v)) ? String(v) : String(Number(v).toFixed(2)); }
+    function makeRange(title, value, min, max, step, setter, disabled = false) {
+      const wrap = document.createElement('div'); wrap.className = 'control';
+      const row = document.createElement('div'); row.className = 'value-row';
+      const a = document.createElement('span'); a.textContent = title;
+      const b = document.createElement('span'); b.textContent = formatValue(value);
+      row.append(a, b);
+      const input = document.createElement('input'); input.type = 'range'; input.min = min; input.max = max; input.step = step; input.value = value; input.disabled = disabled;
+      input.addEventListener('pointerdown', () => { if (!disabled) pushHistory(); }, { once: true });
+      input.addEventListener('input', () => { const parsed = step < 1 ? parseFloat(input.value) : parseInt(input.value, 10); setter(parsed); b.textContent = formatValue(parsed); refreshPreviewOnly(); });
+      wrap.append(row, input); return wrap;
+    }
+    function makeCheckbox(title, checked, setter, disabled = false) {
+      const label = document.createElement('label'); label.className = 'toggle';
+      const input = document.createElement('input'); input.type = 'checkbox'; input.checked = !!checked; input.disabled = disabled;
+      input.addEventListener('change', () => { if (!disabled) { pushHistory(); setter(input.checked); render(); } });
+      const span = document.createElement('span'); span.textContent = title; label.append(input, span); return label;
+    }
+    function makeSelect(title, value, options, setter, disabled = false) {
+      const select = document.createElement('select'); select.disabled = disabled;
+      options.forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; select.appendChild(o); });
+      select.value = value;
+      select.addEventListener('change', () => { if (!disabled) { pushHistory(); setter(select.value); render(); } });
+      return makeControlShell(title, select);
+    }
+    function makeVisibleToggle(layer) { return makeCheckbox('레이어 표시', layer.visible, v => layer.visible = v, false); }
+    function makeLockToggle(layer) { return makeCheckbox('레이어 잠금', layer.locked, v => layer.locked = v, false); }
+    function makeOpacitySlider(layer, disabled) { return makeRange('불투명도', layer.opacity ?? 1, 0.05, 1, 0.01, v => layer.opacity = v, disabled); }
+
+    function proceduralGenerate() {
+      const preset = STYLE_PRESETS[state.preset] || STYLE_PRESETS.arcane;
+      const baseLayers = preset.build().map(l => JSON.parse(JSON.stringify(l)));
+      const rand = mulberry32(Number(state.seed) || 0);
+      const variation = state.variation / 100;
+      const complexity = state.complexity / 100;
+      const ornament = state.ornamentDensity / 100;
+      const runeDensity = state.runeDensity / 100;
+
+      baseLayers.forEach(layer => {
+        if (layer.type === 'circle') {
+          layer.radius += Math.round((rand() - 0.5) * 60 * variation);
+          layer.strokeWidth = clamp(layer.strokeWidth + (rand() - 0.5) * 1.6 * variation, 0.5, 8);
+          layer.opacity = clamp(layer.opacity + (rand() - 0.5) * 0.14 * variation, 0.15, 1);
+          if (rand() > 0.75 && variation > 0.4) {
+            layer.dashA = Math.round(rand() * 24);
+            layer.dashB = Math.round(rand() * 18);
+          }
+        }
+        if (layer.type === 'arcRing') {
+          layer.radius += Math.round((rand() - 0.5) * 56 * variation);
+          layer.arcCount = Math.max(1, layer.arcCount + Math.round((rand() - 0.5) * 10 * variation));
+          layer.arcLength = clamp(layer.arcLength + Math.round((rand() - 0.5) * 24 * variation), 2, 120);
+          layer.rotation = Math.round(rand() * 360);
+        }
+        if (layer.type === 'nodeRing') {
+          layer.radius += Math.round((rand() - 0.5) * 48 * variation);
+          layer.nodeCount = Math.max(1, layer.nodeCount + Math.round((rand() - 0.5) * 14 * variation));
+          layer.nodeSize = clamp(layer.nodeSize + (rand() - 0.5) * 5 * variation, 1, 30);
+          layer.rotation = Math.round(rand() * 360);
+          if (rand() > 0.5) layer.filled = !layer.filled;
+        }
+        if (layer.type === 'chainRing') {
+          layer.radius += Math.round((rand() - 0.5) * 44 * variation);
+          layer.linkCount = Math.max(1, layer.linkCount + Math.round((rand() - 0.5) * 10 * variation));
+          layer.linkWidth = clamp(layer.linkWidth + Math.round((rand() - 0.5) * 10 * variation), 4, 60);
+          layer.linkHeight = clamp(layer.linkHeight + Math.round((rand() - 0.5) * 10 * variation), 4, 80);
+          layer.rotation = Math.round(rand() * 360);
+        }
+        if (layer.type === 'tickRing') {
+          layer.radius += Math.round((rand() - 0.5) * 40 * variation);
+          layer.tickCount = Math.max(1, layer.tickCount + Math.round((rand() - 0.5) * 20 * variation + ornament * 12));
+          layer.tickLength = clamp(layer.tickLength + Math.round((rand() - 0.5) * 8 * variation), 1, 40);
+          layer.rotation = Math.round(rand() * 360);
+        }
+        if (layer.type === 'triangleRing') {
+          layer.radius += Math.round((rand() - 0.5) * 44 * variation);
+          layer.triangleCount = Math.max(1, layer.triangleCount + Math.round((rand() - 0.5) * 16 * variation + ornament * 10));
+          layer.triangleSize = clamp(layer.triangleSize + Math.round((rand() - 0.5) * 8 * variation), 2, 40);
+          layer.rotation = Math.round(rand() * 360);
+          if (rand() > 0.5) layer.filled = !layer.filled;
+        }
+        if (layer.type === 'gearRing') {
+          layer.radius += Math.round((rand() - 0.5) * 40 * variation);
+          layer.toothCount = Math.max(3, layer.toothCount + Math.round((rand() - 0.5) * 12 * variation + complexity * 6));
+          layer.toothDepth = clamp(layer.toothDepth + Math.round((rand() - 0.5) * 8 * variation), 1, 40);
+          layer.rotation = Math.round(rand() * 360);
+        }
+        if (layer.type === 'spokes') {
+          layer.count = Math.max(1, layer.count + Math.round((rand() - 0.5) * 14 * variation + complexity * 8));
+          layer.innerRadius += Math.round((rand() - 0.5) * 40 * variation);
+          layer.outerRadius += Math.round((rand() - 0.5) * 30 * variation);
+          layer.strokeWidth = clamp(layer.strokeWidth + (rand() - 0.5) * 1.3 * variation, 0.4, 8);
+        }
+        if (layer.type === 'polygon') {
+          layer.rotation = Math.round(rand() * 360);
+          layer.points = Math.max(3, layer.points + Math.round((rand() - 0.5) * 4 * variation + complexity * 2));
+          layer.skip = clamp(layer.skip + Math.round((rand() - 0.5) * 2 * variation), 1, Math.max(1, layer.points - 1));
+          layer.radius += Math.round((rand() - 0.5) * 50 * variation);
+        }
+        if (layer.type === 'star') {
+          layer.rotation = Math.round(rand() * 360);
+          layer.innerRatio = clamp(layer.innerRatio + (rand() - 0.5) * 0.25 * variation, 0.2, 0.8);
+          layer.points = Math.max(3, layer.points + Math.round((rand() - 0.5) * 4 * variation + complexity));
+          layer.radius += Math.round((rand() - 0.5) * 44 * variation);
+        }
+        if (layer.type === 'runeRing') {
+          layer.rotationOffset = Math.round(rand() * 360);
+          layer.glyphCount = Math.max(1, Math.round(layer.glyphCount * (0.7 + runeDensity * 0.8)) + Math.round((rand() - 0.5) * 8 * variation));
+          if (rand() > 0.55) layer.direction = rand() > 0.5 ? 'outward' : 'inward';
+          if (rand() > 0.55) layer.clockwise = rand() > 0.5;
+        }
+        if (layer.type === 'textRing') {
+          layer.rotationOffset = Math.round(rand() * 360);
+          if (rand() > 0.55) layer.direction = rand() > 0.5 ? 'outward' : 'inward';
+          if (rand() > 0.55) layer.clockwise = rand() > 0.5;
+        }
+        if (layer.type === 'centerSymbol') {
+          layer.fontSize = clamp(layer.fontSize + Math.round((rand() - 0.5) * 18 * variation), 10, 140);
+          layer.ringRadius = clamp(layer.ringRadius + Math.round((rand() - 0.5) * 20 * variation), 0, 180);
+        }
+      });
+
+      const extraFactories = [
+        () => layerCircle('추가 보조 링', { radius: Math.round(150 + rand() * 240), strokeWidth: 1.3 + rand() * 1.6, dashA: rand() > 0.45 ? Math.round(5 + rand() * 24) : 0, dashB: rand() > 0.45 ? Math.round(5 + rand() * 18) : 0, opacity: 0.45 + rand() * 0.25 }),
+        () => layerPolygon('추가 문양', { radius: Math.round(140 + rand() * 180), points: 3 + Math.round(rand() * 7), rotation: Math.round(rand() * 360), strokeWidth: 1.2 + rand() * 1.4, opacity: 0.45 + rand() * 0.25, skip: rand() > 0.65 ? 2 : 1 }),
+        () => layerRuneRing('추가 룬 링', { radius: Math.round(180 + rand() * 170), glyphSet: Object.values(GLYPH_SETS)[Math.floor(rand() * Object.values(GLYPH_SETS).length)], glyphCount: Math.round((14 + rand() * 18) * (0.7 + runeDensity * 0.8)), fontSize: 18 + Math.round(rand() * 12), rotationOffset: Math.round(rand() * 360), opacity: 0.55 + rand() * 0.22, direction: rand() > 0.5 ? 'outward' : 'inward', clockwise: rand() > 0.5 }),
+        () => layerArcRing('추가 원호 링', { radius: Math.round(170 + rand() * 180), arcCount: 4 + Math.round(rand() * 12), arcLength: 8 + Math.round(rand() * 28), rotation: Math.round(rand() * 360), strokeWidth: 1.2 + rand() * 2, opacity: 0.5 + rand() * 0.25 }),
+        () => layerNodeRing('추가 노드 링', { radius: Math.round(160 + rand() * 170), nodeCount: 6 + Math.round(rand() * 24 + ornament * 10), nodeSize: 2 + rand() * 8, filled: rand() > 0.5, rotation: Math.round(rand() * 360), strokeWidth: 1 + rand() * 1.5, opacity: 0.55 + rand() * 0.2 }),
+        () => layerChainRing('추가 체인 링', { radius: Math.round(170 + rand() * 170), linkCount: 8 + Math.round(rand() * 16), linkWidth: 12 + Math.round(rand() * 16), linkHeight: 18 + Math.round(rand() * 18), rotation: Math.round(rand() * 360), strokeWidth: 1 + rand() * 1.2, opacity: 0.5 + rand() * 0.22 }),
+        () => layerTickRing('추가 눈금 링', { radius: Math.round(160 + rand() * 180), tickCount: 18 + Math.round(rand() * 42 + ornament * 18), tickLength: 6 + Math.round(rand() * 14), rotation: Math.round(rand() * 360), strokeWidth: 0.8 + rand() * 1.2, everyOtherLong: rand() > 0.45, opacity: 0.55 + rand() * 0.18 }),
+        () => layerTriangleRing('추가 삼각 링', { radius: Math.round(160 + rand() * 180), triangleCount: 8 + Math.round(rand() * 28 + ornament * 12), triangleSize: 6 + Math.round(rand() * 14), rotation: Math.round(rand() * 360), strokeWidth: 1 + rand() * 1.4, filled: rand() > 0.65, opacity: 0.48 + rand() * 0.22 }),
+        () => layerGearRing('추가 기어 링', { radius: Math.round(160 + rand() * 180), toothCount: 8 + Math.round(rand() * 20 + complexity * 8), toothDepth: 6 + Math.round(rand() * 14), rotation: Math.round(rand() * 360), strokeWidth: 1 + rand() * 1.2, opacity: 0.5 + rand() * 0.22 })
+      ];
+
+      const extraBudget = Math.round(1 + complexity * 5 + ornament * 4 + variation * 2);
+      for (let i = 0; i < extraBudget; i++) {
+        if (rand() < 0.72) {
+          const factory = extraFactories[Math.floor(rand() * extraFactories.length)];
+          baseLayers.splice(Math.max(1, baseLayers.length - 1), 0, factory());
+        }
+      }
+
+      state.layers = baseLayers.map(normalizeLayer);
+      state.selectedLayerId = state.layers[0]?.id ?? null;
+      render();
+    }
+
+    function regenerateFromCurrentControls() {
+      proceduralGenerate();
+    }
+
+
+    function addLayerByType(type) {
+      pushHistory();
+      let layer = null;
+      if (type === 'circle') layer = layerCircle('새 원형', { radius: 320, strokeWidth: 2 });
+      if (type === 'arcRing') layer = layerArcRing('새 원호 링', { radius: 320, arcCount: 8, arcLength: 18, strokeWidth: 2.4 });
+      if (type === 'nodeRing') layer = layerNodeRing('새 노드 링', { radius: 320, nodeCount: 16, nodeSize: 5, filled: true, strokeWidth: 2 });
+      if (type === 'chainRing') layer = layerChainRing('새 체인 링', { radius: 320, linkCount: 14, linkWidth: 18, linkHeight: 30, strokeWidth: 2 });
+      if (type === 'tickRing') layer = layerTickRing('새 눈금 링', { radius: 320, tickCount: 36, tickLength: 12, strokeWidth: 1.4 });
+      if (type === 'triangleRing') layer = layerTriangleRing('새 삼각 링', { radius: 320, triangleCount: 16, triangleSize: 14, strokeWidth: 1.5, filled: false });
+      if (type === 'gearRing') layer = layerGearRing('새 기어 링', { radius: 320, toothCount: 20, toothDepth: 12, strokeWidth: 1.5 });
+      if (type === 'spokes') layer = layerSpokes('새 방사선', { count: 12, innerRadius: 140, outerRadius: 380, strokeWidth: 1.8 });
+      if (type === 'polygon') layer = layerPolygon('새 다각형', { radius: 280, points: 6, strokeWidth: 2 });
+      if (type === 'star') layer = layerStar('새 별형', { radius: 220, points: 8, innerRatio: 0.5, strokeWidth: 2 });
+      if (type === 'runeRing') layer = layerRuneRing('새 룬 링', { radius: 340, glyphSet: GLYPH_SETS.elder, glyphCount: 24, fontSize: 28 });
+      if (type === 'textRing') layer = layerTextRing('새 텍스트 링', { radius: 340, text: 'MAGIC CIRCLE ✦ ', repeat: 2, fontSize: 20 });
+      if (type === 'centerSymbol') layer = layerCenterSymbol('새 중심 심볼', { symbol: '✦', fontSize: 50, ringRadius: 60, strokeWidth: 2.4 });
+      if (!layer) return;
+      normalizeLayer(layer); state.layers.push(layer); state.selectedLayerId = layer.id; render();
+    }
+
+    function moveSelected(dir) {
+      const layer = selectedLayer(); if (!layer || layer.locked) return;
+      pushHistory();
+      const idx = state.layers.findIndex(l => l.id === state.selectedLayerId); const target = idx + dir; if (target < 0 || target >= state.layers.length) return;
+      const [it] = state.layers.splice(idx, 1); state.layers.splice(target, 0, it); render();
+    }
+    function duplicateSelected() {
+      const layer = selectedLayer(); if (!layer || layer.locked) return; pushHistory();
+      const idx = state.layers.findIndex(l => l.id === layer.id); const copy = cloneLayer(layer); state.layers.splice(idx + 1, 0, copy); state.selectedLayerId = copy.id; render();
+    }
+    function deleteSelected() {
+      const layer = selectedLayer(); if (!layer || layer.locked) return; pushHistory();
+      const idx = state.layers.findIndex(l => l.id === state.selectedLayerId); state.layers.splice(idx, 1); state.selectedLayerId = state.layers[Math.max(0, idx - 1)]?.id ?? state.layers[0]?.id ?? null; render();
+    }
+    function toggleSelectedLock() { const layer = selectedLayer(); if (!layer) return; pushHistory(); layer.locked = !layer.locked; render(); }
+
+    function saveProject() {
+      const payload = {
+        version: 'pro-v5',
+        canvasSize: state.canvasSize,
+        workspaceLayout: state.workspaceLayout,
+        headerBadge: state.headerBadge,
+        headerTitle: state.headerTitle,
+        transparentBg: state.transparentBg,
+        showGuides: state.showGuides,
+        guidesPreviewOnly: state.guidesPreviewOnly,
+        layerGroupFilter: state.layerGroupFilter,
+        seed: state.seed,
+        preset: state.preset,
+        variation: state.variation,
+        complexity: state.complexity,
+        ornamentDensity: state.ornamentDensity,
+        runeDensity: state.runeDensity,
+        layers: state.layers
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `magic-circle-project-${state.seed}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    function loadProjectFromFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          pushHistory();
+          const data = JSON.parse(reader.result);
+          state.canvasSize = Number(data.canvasSize) || 1024;
+          state.workspaceLayout = data.workspaceLayout || 'fit1080';
+          state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+          state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
+          state.transparentBg = !!data.transparentBg;
+          state.showGuides = !!data.showGuides;
+          state.guidesPreviewOnly = data.guidesPreviewOnly !== false;
+          state.layerGroupFilter = data.layerGroupFilter || 'all';
+          state.seed = Number(data.seed) || 0;
+          state.preset = STYLE_PRESETS[data.preset] ? data.preset : 'arcane';
+          state.variation = Number.isFinite(data.variation) ? data.variation : 45;
+          state.complexity = Number.isFinite(data.complexity) ? data.complexity : 60;
+          state.ornamentDensity = Number.isFinite(data.ornamentDensity) ? data.ornamentDensity : 55;
+          state.runeDensity = Number.isFinite(data.runeDensity) ? data.runeDensity : 55;
+          state.layers = Array.isArray(data.layers) ? data.layers.map(layer => normalizeLayer({ visible: true, locked: false, ...layer, id: layer.id || uid() })) : [];
+          state.selectedLayerId = state.layers[0]?.id ?? null;
+          render();
+        } catch (e) { alert('프로젝트 JSON을 읽을 수 없습니다.'); }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+    function downloadSvg(onlyLayerId = null, filename = null) {
+      const svg = getSvgMarkup(onlyLayerId, !state.guidesPreviewOnly); const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename || (onlyLayerId ? `magic-circle-layer-${onlyLayerId}.svg` : `magic-circle-pro-${state.seed}.svg`); document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    function downloadPng(onlyLayerId = null, filename = null) {
+      const svg = getSvgMarkup(onlyLayerId, !state.guidesPreviewOnly); const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }); const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        const size = Number(state.canvasSize) || 1024; const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,size,size); ctx.drawImage(img,0,0,size,size);
+        canvas.toBlob((blob) => { const pngUrl = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = pngUrl; a.download = filename || (onlyLayerId ? `magic-circle-layer-${onlyLayerId}.png` : `magic-circle-pro-${state.seed}.png`); document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(pngUrl); URL.revokeObjectURL(url); }, 'image/png');
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); alert('PNG 저장에 실패했습니다.'); };
+      img.src = url;
+    }
+    function sanitizeFilename(name) { return String(name || 'layer').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '_'); }
+    function downloadAllLayersSvg() {
+      const layers = state.layers.filter(l => l.visible);
+      layers.forEach((layer, index) => {
+        setTimeout(() => downloadSvg(layer.id, `${String(index + 1).padStart(2, '0')}-${sanitizeFilename(layer.name)}.svg`), index * 180);
+      });
+    }
+    function downloadAllLayersPng() {
+      const layers = state.layers.filter(l => l.visible);
+      layers.forEach((layer, index) => {
+        setTimeout(() => downloadPng(layer.id, `${String(index + 1).padStart(2, '0')}-${sanitizeFilename(layer.name)}.png`), index * 260);
+      });
+    }
+
+    function getUserPresets() {
+      try {
+        const raw = localStorage.getItem(USER_PRESET_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch { return []; }
+    }
+    function setUserPresets(list) { localStorage.setItem(USER_PRESET_KEY, JSON.stringify(list)); }
+    function refreshUserPresetSelect() {
+      const presets = getUserPresets();
+      const current = userPresetSelect.value;
+      userPresetSelect.innerHTML = '<option value="">저장된 사용자 프리셋 선택</option>';
+      presets.forEach((preset, index) => {
+        const opt = document.createElement('option'); opt.value = String(index); opt.textContent = preset.name; userPresetSelect.appendChild(opt);
+      });
+      if ([...userPresetSelect.options].some(opt => opt.value === current)) userPresetSelect.value = current;
+    }
+    function saveCurrentAsUserPreset() {
+      const name = prompt('사용자 프리셋 이름을 입력하세요.');
+      if (!name) return;
+      const presets = getUserPresets();
+      presets.push({
+        name,
+        savedAt: new Date().toISOString(),
+        data: {
+          canvasSize: state.canvasSize,
+          workspaceLayout: state.workspaceLayout,
+          headerBadge: state.headerBadge,
+          headerTitle: state.headerTitle,
+          transparentBg: state.transparentBg,
+          showGuides: state.showGuides,
+          guidesPreviewOnly: state.guidesPreviewOnly,
+          layerGroupFilter: state.layerGroupFilter,
+          seed: state.seed,
+          preset: state.preset,
+          variation: state.variation,
+          complexity: state.complexity,
+          ornamentDensity: state.ornamentDensity,
+          runeDensity: state.runeDensity,
+          layers: JSON.parse(JSON.stringify(state.layers))
+        }
+      });
+      setUserPresets(presets); refreshUserPresetSelect(); alert('사용자 프리셋이 저장되었습니다.');
+    }
+    function loadSelectedUserPreset() {
+      const idx = userPresetSelect.value; if (idx === '') return;
+      const presets = getUserPresets(); const selected = presets[Number(idx)]; if (!selected) return;
+      pushHistory();
+      const data = selected.data;
+      state.canvasSize = Number(data.canvasSize) || 1024;
+      state.workspaceLayout = data.workspaceLayout || 'fit1080';
+      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+      state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
+      state.transparentBg = !!data.transparentBg;
+      state.showGuides = !!data.showGuides;
+      state.guidesPreviewOnly = data.guidesPreviewOnly !== false;
+      state.layerGroupFilter = data.layerGroupFilter || 'all';
+      state.seed = Number(data.seed) || 0;
+      state.preset = STYLE_PRESETS[data.preset] ? data.preset : 'arcane';
+      state.variation = Number.isFinite(data.variation) ? data.variation : 45;
+      state.complexity = Number.isFinite(data.complexity) ? data.complexity : 60;
+      state.ornamentDensity = Number.isFinite(data.ornamentDensity) ? data.ornamentDensity : 55;
+      state.runeDensity = Number.isFinite(data.runeDensity) ? data.runeDensity : 55;
+      state.layers = Array.isArray(data.layers) ? data.layers.map(layer => normalizeLayer({ visible: true, locked: false, ...layer, id: layer.id || uid() })) : [];
+      state.selectedLayerId = state.layers[0]?.id ?? null;
+      render();
+    }
+    function deleteSelectedUserPreset() {
+      const idx = userPresetSelect.value; if (idx === '') return;
+      const presets = getUserPresets(); const selected = presets[Number(idx)]; if (!selected) return;
+      if (!confirm(`'${selected.name}' 프리셋을 삭제할까요?`)) return;
+      presets.splice(Number(idx), 1); setUserPresets(presets); refreshUserPresetSelect();
+    }
+
+
+    function setCurrentGroupVisibility(value) {
+      const group = state.layerGroupFilter;
+      if (group === 'all') {
+        if (!confirm(value ? '모든 레이어를 표시할까요?' : '모든 레이어를 숨길까요?')) return;
+      }
+      pushHistory();
+      state.layers.forEach(layer => {
+        const layerGroup = layer.group || inferLayerGroup(layer.type);
+        if (group === 'all' || layerGroup === group) layer.visible = value;
+      });
+      render();
+    }
+
+    function render() {
+      stylePresetSelect.value = state.preset;
+      stylePresetHint.textContent = STYLE_PRESETS[state.preset]?.desc || '';
+      document.body.dataset.workspaceLayout = state.workspaceLayout;
+      seedInput.value = state.seed;
+      canvasSizeSelect.value = String(state.canvasSize);
+      workspaceLayoutSelect.value = state.workspaceLayout;
+      headerBadgeText.textContent = state.headerBadge;
+      headerTitleText.textContent = state.headerTitle;
+      transparentBgInput.checked = state.transparentBg;
+      showGuidesInput.checked = state.showGuides;
+      guidesPreviewOnlyInput.checked = state.guidesPreviewOnly;
+      layerGroupFilterSelect.value = state.layerGroupFilter;
+      variationInput.value = String(state.variation);
+      variationLabel.textContent = String(state.variation);
+      complexityInput.value = String(state.complexity);
+      complexityLabel.textContent = String(state.complexity);
+      ornamentDensityInput.value = String(state.ornamentDensity);
+      ornamentDensityLabel.textContent = String(state.ornamentDensity);
+      runeDensityInput.value = String(state.runeDensity);
+      runeDensityLabel.textContent = String(state.runeDensity);
+      document.getElementById('undoBtn').disabled = state.undoStack.length === 0;
+      document.getElementById('redoBtn').disabled = state.redoStack.length === 0;
+      preview.innerHTML = getSvgMarkup();
+      renderLayerList();
+      renderPropertyEditor();
+      refreshUserPresetSelect();
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', () => { pushHistory(); proceduralGenerate(); });
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('redoBtn').addEventListener('click', redo);
+    document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+    document.getElementById('loadProjectBtn').addEventListener('click', () => projectFileInput.click());
+    document.getElementById('downloadSvgBtn').addEventListener('click', () => downloadSvg());
+    document.getElementById('downloadPngBtn').addEventListener('click', () => downloadPng());
+    document.getElementById('duplicateLayerBtn').addEventListener('click', duplicateSelected);
+    document.getElementById('moveLayerUpBtn').addEventListener('click', () => moveSelected(-1));
+    document.getElementById('moveLayerDownBtn').addEventListener('click', () => moveSelected(1));
+    document.getElementById('toggleLockBtn').addEventListener('click', toggleSelectedLock);
+    document.getElementById('deleteLayerBtn').addEventListener('click', deleteSelected);
+    document.getElementById('downloadSelectedLayerPngBtn').addEventListener('click', () => { const layer = selectedLayer(); if (layer) downloadPng(layer.id); });
+    document.getElementById('downloadSelectedLayerSvgBtn').addEventListener('click', () => { const layer = selectedLayer(); if (layer) downloadSvg(layer.id); });
+    document.getElementById('downloadAllLayersPngBtn').addEventListener('click', downloadAllLayersPng);
+    document.getElementById('downloadAllLayersSvgBtn').addEventListener('click', downloadAllLayersSvg);
+    document.getElementById('downloadMergedPngBtn').addEventListener('click', () => downloadPng(null, `magic-circle-merged-${state.seed}.png`));
+    document.getElementById('downloadMergedSvgBtn').addEventListener('click', () => downloadSvg(null, `magic-circle-merged-${state.seed}.svg`));
+    document.getElementById('saveUserPresetBtn').addEventListener('click', saveCurrentAsUserPreset);
+    document.getElementById('loadUserPresetBtn').addEventListener('click', loadSelectedUserPreset);
+    document.getElementById('deleteUserPresetBtn').addEventListener('click', deleteSelectedUserPreset);
+
+    stylePresetSelect.addEventListener('change', () => { pushHistory(); state.preset = stylePresetSelect.value; proceduralGenerate(); });
+    seedInput.addEventListener('focus', () => pushHistory(), { once: true });
+    seedInput.addEventListener('input', () => { state.seed = Number(seedInput.value) || 0; regenerateFromCurrentControls(); });
+    canvasSizeSelect.addEventListener('change', () => { pushHistory(); state.canvasSize = Number(canvasSizeSelect.value) || 1024; render(); });
+    workspaceLayoutSelect.addEventListener('change', () => { pushHistory(); state.workspaceLayout = workspaceLayoutSelect.value; render(); });
+    transparentBgInput.addEventListener('change', () => { pushHistory(); state.transparentBg = transparentBgInput.checked; render(); });
+    showGuidesInput.addEventListener('change', () => { pushHistory(); state.showGuides = showGuidesInput.checked; render(); });
+    guidesPreviewOnlyInput.addEventListener('change', () => { pushHistory(); state.guidesPreviewOnly = guidesPreviewOnlyInput.checked; render(); });
+    layerGroupFilterSelect.addEventListener('change', () => { state.layerGroupFilter = layerGroupFilterSelect.value; render(); });
+    document.getElementById('showGroupBtn').addEventListener('click', () => setCurrentGroupVisibility(true));
+    document.getElementById('hideGroupBtn').addEventListener('click', () => setCurrentGroupVisibility(false));
+    variationInput.addEventListener('pointerdown', () => pushHistory(), { once: true });
+    variationInput.addEventListener('input', () => { state.variation = Number(variationInput.value) || 0; regenerateFromCurrentControls(); });
+    complexityInput.addEventListener('pointerdown', () => pushHistory(), { once: true });
+    complexityInput.addEventListener('input', () => { state.complexity = Number(complexityInput.value) || 0; regenerateFromCurrentControls(); });
+    ornamentDensityInput.addEventListener('pointerdown', () => pushHistory(), { once: true });
+    ornamentDensityInput.addEventListener('input', () => { state.ornamentDensity = Number(ornamentDensityInput.value) || 0; regenerateFromCurrentControls(); });
+    runeDensityInput.addEventListener('pointerdown', () => pushHistory(), { once: true });
+    runeDensityInput.addEventListener('input', () => { state.runeDensity = Number(runeDensityInput.value) || 0; regenerateFromCurrentControls(); });
+    projectFileInput.addEventListener('change', (e) => loadProjectFromFile(e.target.files[0]));
+    document.querySelectorAll('[data-add-type]').forEach(btn => btn.addEventListener('click', () => addLayerByType(btn.dataset.addType)));
+
+    refreshUserPresetSelect();
+    proceduralGenerate();
+  </script>
+</body>
+</html>

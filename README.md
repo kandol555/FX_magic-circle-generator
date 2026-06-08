@@ -1,1 +1,1 @@
-# magic-circle-generator-pro-v6
+# FX_magic-circle-generator

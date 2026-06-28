@@ -40,7 +40,7 @@
 
 GitHub Pages를 통해 아래 주소에서 실행할 수 있습니다.
 
-https://kandol555.github.io/FX_effects-texture-converter/
+https://kandol555.github.io/FX_magic-circle-generator/
 
 네이버블로그
 https://blog.naver.com/kandol55/224329889677

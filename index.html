@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Magic Circle Generator Pro v6 Code Header</title>
+  <title>Magic Circle Generator Pro v7 Preset Backup</title>
   <style>
     :root {
       --bg: #08111d;
@@ -351,8 +351,8 @@
   <div class="app">
     <section class="header">
       <div>
-        <div class="badge" id="headerBadgeText">✦ Magic Circle Generator Pro v6 Code Header Code Header lightning-white Save+ Live Layout 드래그 개선판</div>
-        <h1 id="headerTitleText">게임용 스타일 재정리 버전</h1>
+        <div class="badge" id="headerBadgeText">✦ KANDOL : Magic Circle Generator Pro v7</div>
+        <h1 id="headerTitleText">게임 이펙트 마법진 제작 툴</h1>
         <p class="subtitle">
           생성 스타일 (게임용 분류) 이름을 더 직관적인 게임용 분류로 정리했습니다.
           각 스타일은 샘플 이미지가 아니라, 해당 테마의 생성 규칙을 기반으로 절차적으로 만들어집니다.
@@ -367,6 +367,7 @@
         <button class="secondary" id="downloadSvgBtn">SVG 저장</button>
         <button class="secondary" id="downloadPngBtn">PNG 저장</button>
         <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
+        <input type="file" id="presetImportFileInput" accept=".json,application/json" hidden />
       </div>
     </section>
 
@@ -449,6 +450,11 @@
               <button class="secondary" id="loadUserPresetBtn">불러오기</button>
               <button class="danger" id="deleteUserPresetBtn">삭제</button>
             </div>
+            <div class="small-actions">
+              <button class="secondary" id="exportUserPresetsBtn">프리셋 전체 내보내기</button>
+              <button class="secondary" id="importUserPresetsBtn">프리셋 전체 가져오기</button>
+            </div>
+            <div class="hint">사용자 프리셋은 브라우저 내부에 저장됩니다. 다른 컴퓨터로 옮기려면 전체 내보내기 / 가져오기를 사용하세요.</div>
           </div>
 
           <div class="divider"></div>
@@ -825,7 +831,7 @@
       canvasSize: 1024,
       workspaceLayout: 'fit1080',
       // 상단 문구를 코드에서 직접 수정하려면 아래 두 줄의 따옴표 안 문구를 바꾸면 됩니다.
-      headerBadge: '✦ KANDOL : Magic Circle Generator Pro v6',
+      headerBadge: '✦ KANDOL : Magic Circle Generator Pro v7',
       headerTitle: '게임 이펙트 마법진 제작 툴',
       transparentBg: true,
       showGuides: false,
@@ -858,6 +864,7 @@
     const guidesPreviewOnlyInput = document.getElementById('guidesPreviewOnlyInput');
     const layerGroupFilterSelect = document.getElementById('layerGroupFilterSelect');
     const projectFileInput = document.getElementById('projectFileInput');
+    const presetImportFileInput = document.getElementById('presetImportFileInput');
     const variationInput = document.getElementById('variationInput');
     const variationLabel = document.getElementById('variationLabel');
     const complexityInput = document.getElementById('complexityInput');
@@ -901,7 +908,7 @@
       const data = JSON.parse(serialized);
       state.canvasSize = Number(data.canvasSize) || 1024;
       state.workspaceLayout = data.workspaceLayout || 'fit1080';
-      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v7 Preset Backup';
       state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
       state.transparentBg = !!data.transparentBg;
       state.showGuides = !!data.showGuides;
@@ -1502,7 +1509,7 @@
           const data = JSON.parse(reader.result);
           state.canvasSize = Number(data.canvasSize) || 1024;
           state.workspaceLayout = data.workspaceLayout || 'fit1080';
-          state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+          state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v7 Preset Backup';
           state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
           state.transparentBg = !!data.transparentBg;
           state.showGuides = !!data.showGuides;
@@ -1600,7 +1607,7 @@
       const data = selected.data;
       state.canvasSize = Number(data.canvasSize) || 1024;
       state.workspaceLayout = data.workspaceLayout || 'fit1080';
-      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v6 Code Header';
+      state.headerBadge = data.headerBadge || '✦ Magic Circle Generator Pro v7 Preset Backup';
       state.headerTitle = data.headerTitle || '게임용 스타일 재정리 버전';
       state.transparentBg = !!data.transparentBg;
       state.showGuides = !!data.showGuides;
@@ -1636,6 +1643,84 @@
       });
       render();
     }
+
+    function exportUserPresets() {
+      const presets = getUserPresets();
+      if (!presets.length) {
+        alert('내보낼 사용자 프리셋이 없습니다.');
+        return;
+      }
+
+      const payload = {
+        version: 'user-presets-v1',
+        tool: 'FX_magic-circle-generator',
+        exportedAt: new Date().toISOString(),
+        count: presets.length,
+        presets
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `magic-circle-user-presets-${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importUserPresetsFromFile(file) {
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const importedPresets = Array.isArray(data)
+            ? data
+            : Array.isArray(data.presets)
+              ? data.presets
+              : null;
+
+          if (!importedPresets || !importedPresets.length) {
+            alert('가져올 사용자 프리셋을 찾을 수 없습니다.');
+            return;
+          }
+
+          const addMode = confirm(
+            '확인을 누르면 기존 사용자 프리셋에 추가합니다.\n\n취소를 누르면 기존 사용자 프리셋을 모두 지우고 가져온 프리셋으로 교체합니다.'
+          );
+
+          const currentPresets = getUserPresets();
+          const normalized = importedPresets.map((preset, index) => {
+            const name = preset.name || `Imported Preset ${index + 1}`;
+            const presetData = preset.data || preset;
+            return {
+              name,
+              savedAt: preset.savedAt || new Date().toISOString(),
+              data: presetData
+            };
+          });
+
+          const finalPresets = addMode
+            ? currentPresets.concat(normalized)
+            : normalized;
+
+          setUserPresets(finalPresets);
+          refreshUserPresetSelect();
+          alert(`${normalized.length}개의 사용자 프리셋을 가져왔습니다.`);
+        } catch (error) {
+          alert('사용자 프리셋 JSON 파일을 읽을 수 없습니다.');
+        } finally {
+          presetImportFileInput.value = '';
+        }
+      };
+
+      reader.readAsText(file, 'utf-8');
+    }
+
 
     function render() {
       stylePresetSelect.value = state.preset;
@@ -1687,6 +1772,8 @@
     document.getElementById('saveUserPresetBtn').addEventListener('click', saveCurrentAsUserPreset);
     document.getElementById('loadUserPresetBtn').addEventListener('click', loadSelectedUserPreset);
     document.getElementById('deleteUserPresetBtn').addEventListener('click', deleteSelectedUserPreset);
+    document.getElementById('exportUserPresetsBtn').addEventListener('click', exportUserPresets);
+    document.getElementById('importUserPresetsBtn').addEventListener('click', () => presetImportFileInput.click());
 
     stylePresetSelect.addEventListener('change', () => { pushHistory(); state.preset = stylePresetSelect.value; proceduralGenerate(); });
     seedInput.addEventListener('focus', () => pushHistory(), { once: true });
@@ -1708,6 +1795,7 @@
     runeDensityInput.addEventListener('pointerdown', () => pushHistory(), { once: true });
     runeDensityInput.addEventListener('input', () => { state.runeDensity = Number(runeDensityInput.value) || 0; regenerateFromCurrentControls(); });
     projectFileInput.addEventListener('change', (e) => loadProjectFromFile(e.target.files[0]));
+    presetImportFileInput.addEventListener('change', (e) => importUserPresetsFromFile(e.target.files[0]));
     document.querySelectorAll('[data-add-type]').forEach(btn => btn.addEventListener('click', () => addLayerByType(btn.dataset.addType)));
 
     refreshUserPresetSelect();

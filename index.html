@@ -28,15 +28,15 @@
         radial-gradient(circle at bottom right, rgba(147, 51, 234, 0.12), transparent 35%),
         var(--bg);
     }
-    .app { width: min(1860px, 100%); margin: 0 auto; padding: 18px; }
-    .header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; margin-bottom: 16px; }
+    .app { width: min(1920px, 100%); margin: 0 auto; padding: 10px; }
+    .header { display: flex; justify-content: space-between; gap: 14px; align-items: flex-end; margin-bottom: 10px; }
     .badge {
       display: inline-flex; align-items: center; gap: 8px; background: rgba(125, 211, 252, 0.10);
       border: 1px solid rgba(125, 211, 252, 0.25); color: #d9f5ff; padding: 7px 12px;
       border-radius: 999px; font-size: 13px; font-weight: 700;
     }
-    h1 { margin: 10px 0 8px; font-size: clamp(30px, 4vw, 54px); line-height: 1.02; letter-spacing: -0.05em; }
-    .subtitle { margin: 0; color: #c8d4e2; max-width: 980px; line-height: 1.6; font-size: 15px; }
+    h1 { margin: 8px 0 6px; font-size: clamp(30px, 3vw, 44px); line-height: 1.02; letter-spacing: -0.04em; }
+    .subtitle { margin: 0; color: #c8d4e2; max-width: 980px; line-height: 1.35; font-size: 14px; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
     button, .button-like {
       border: 0; cursor: pointer; border-radius: 14px; padding: 11px 14px; font-weight: 700;
@@ -50,16 +50,24 @@
     button.danger {
       color: #fee2e2; background: rgba(127, 29, 29, 0.65); border: 1px solid rgba(252, 165, 165, 0.22); box-shadow: none;
     }
-    .layout { display: grid; grid-template-columns: 370px 400px 1fr; gap: 16px; align-items: start; }
+    .layout {
+      display: grid;
+      grid-template-columns: 310px 350px 380px minmax(620px, 1fr);
+      grid-template-areas: "setup layers props preview";
+      gap: 8px;
+      align-items: start;
+      height: calc(100vh - 122px);
+      overflow: hidden;
+    }
     .panel {
       background: var(--panel); border: 1px solid var(--border); border-radius: 24px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.30); overflow: hidden; min-height: 120px;
     }
-    .panel-inner { padding: 18px; }
+    .panel-inner { padding: 14px; }
     .panel-title {
       font-size: 18px; font-weight: 800; margin: 0 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .stack { display: flex; flex-direction: column; gap: 10px; }
     .control { display: flex; flex-direction: column; gap: 7px; }
     .control label { font-size: 13px; color: #dbe7f3; font-weight: 700; }
     .hint { font-size: 12px; color: var(--muted); line-height: 1.45; }
@@ -111,6 +119,18 @@
       box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.16);
       cursor: grab;
     }
+    .range-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 10px;
+      align-items: center;
+    }
+    .range-number {
+      padding: 8px 10px;
+      border-radius: 10px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
 
     input:focus, select:focus, textarea:focus { border-color: rgba(125, 211, 252, 0.70); }
     .inline-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -122,9 +142,18 @@
       border: 1px solid rgba(125, 211, 252, 0.20); color: #d9f5ff; font-weight: 700;
     }
     .toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); user-select: none; }
-    .preview-panel { padding: 18px; }
+    .setup-panel { grid-area: setup; }
+    .layers-panel { grid-area: layers; }
+    .property-panel { grid-area: props; }
+    .preview-panel { grid-area: preview; padding: 10px; }
+    .setup-panel,
+    .layers-panel,
+    .property-panel {
+      max-height: calc(100vh - 122px);
+      overflow: auto;
+    }
     .preview-wrap {
-      width: min(100%, 980px); margin: 0 auto; aspect-ratio: 1 / 1; border-radius: 24px; overflow: hidden;
+      width: min(100%, calc(100vh - 162px), 980px); margin: 0 auto; aspect-ratio: 1 / 1; border-radius: 18px; overflow: hidden;
       border: 1px solid rgba(148, 163, 184, 0.18);
       background:
         linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
@@ -136,6 +165,7 @@
       display: flex; align-items: center; justify-content: center;
     }
     #preview { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    #preview svg { width: 100%; height: 100%; display: block; }
     .layer-list { display: flex; flex-direction: column; gap: 8px; max-height: 540px; overflow: auto; padding-right: 4px; }
     .layer-item {
       border: 1px solid rgba(148, 163, 184, 0.16); background: rgba(5, 11, 22, 0.78); border-radius: 16px; padding: 12px;
@@ -184,7 +214,7 @@
 
     body[data-workspace-layout="fit1080"] .app {
       width: min(1920px, 100%);
-      padding: 8px 10px;
+      padding: 8px;
     }
     body[data-workspace-layout="fit1080"] .header {
       margin-bottom: 8px;
@@ -215,14 +245,15 @@
       font-size: 12px;
     }
     body[data-workspace-layout="fit1080"] .layout {
-      grid-template-columns: 330px 360px 1fr;
+      grid-template-columns: 305px 345px 380px minmax(620px, 1fr);
+      grid-template-areas: "setup layers props preview";
       gap: 8px;
-      height: calc(100vh - 96px);
+      height: calc(100vh - 112px);
       overflow: hidden;
     }
     body[data-workspace-layout="fit1080"] .panel {
       border-radius: 16px;
-      max-height: calc(100vh - 96px);
+      max-height: calc(100vh - 112px);
       overflow: auto;
     }
     body[data-workspace-layout="fit1080"] .panel-inner {
@@ -285,7 +316,7 @@
       padding: 10px;
     }
     body[data-workspace-layout="fit1080"] .preview-wrap {
-      width: min(100%, 600px);
+      width: min(100%, calc(100vh - 140px), 980px);
       border-radius: 16px;
     }
     body[data-workspace-layout="fit1080"] .layer-list {
@@ -324,12 +355,12 @@
       padding: 5px 8px;
       font-size: 10px;
     }
-    body[data-workspace-layout="compact"] .app { padding: 12px; }
-    body[data-workspace-layout="compact"] .layout { grid-template-columns: 350px 390px 1fr; gap: 12px; }
+    body[data-workspace-layout="compact"] .app { padding: 10px; }
+    body[data-workspace-layout="compact"] .layout { grid-template-columns: 300px 335px 360px minmax(560px, 1fr); gap: 8px; }
     body[data-workspace-layout="compact"] .panel-inner { padding: 14px; }
-    body[data-workspace-layout="compact"] .preview-wrap { width: min(100%, 720px); }
-    body[data-workspace-layout="large"] .layout { grid-template-columns: 410px 430px 1fr; }
-    body[data-workspace-layout="large"] .preview-wrap { width: min(100%, 1080px); }
+    body[data-workspace-layout="compact"] .preview-wrap { width: min(100%, calc(100vh - 150px), 900px); }
+    body[data-workspace-layout="large"] .layout { grid-template-columns: 330px 380px 420px minmax(640px, 1fr); }
+    body[data-workspace-layout="large"] .preview-wrap { width: min(100%, calc(100vh - 150px), 1080px); }
     @media (max-height: 900px) {
       body[data-workspace-layout="normal"] .panel,
       body[data-workspace-layout="compact"] .panel,
@@ -339,11 +370,58 @@
       }
     }
 
-    @media (max-width: 1440px) { .layout { grid-template-columns: 350px 380px 1fr; } }
-    @media (max-width: 1160px) {
+    @media (max-width: 1440px) {
+      .layout,
+      body[data-workspace-layout="fit1080"] .layout,
+      body[data-workspace-layout="compact"] .layout,
+      body[data-workspace-layout="large"] .layout {
+        grid-template-columns: 220px 270px minmax(520px, 1fr);
+        grid-template-areas:
+          "setup layers preview"
+          "setup layers props";
+        height: auto;
+        overflow: visible;
+      }
+      .setup-panel,
+      .layers-panel,
+      .property-panel,
+      body[data-workspace-layout="fit1080"] .panel {
+        max-height: none;
+      }
+      .preview-wrap,
+      body[data-workspace-layout="fit1080"] .preview-wrap,
+      body[data-workspace-layout="compact"] .preview-wrap,
+      body[data-workspace-layout="large"] .preview-wrap {
+        width: min(100%, calc(100vw - 510px), 760px);
+      }
+      .setup-panel .panel-inner,
+      .layers-panel .panel-inner {
+        padding: 10px;
+      }
+      .property-panel .panel-inner {
+        padding: 12px;
+      }
+    }
+    @media (max-width: 760px) {
       .header { flex-direction: column; align-items: flex-start; }
       .actions { justify-content: flex-start; }
-      .layout { grid-template-columns: 1fr; }
+      .layout,
+      body[data-workspace-layout="fit1080"] .layout,
+      body[data-workspace-layout="compact"] .layout,
+      body[data-workspace-layout="large"] .layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "preview"
+          "props"
+          "setup"
+          "layers";
+      }
+      .preview-wrap,
+      body[data-workspace-layout="fit1080"] .preview-wrap,
+      body[data-workspace-layout="compact"] .preview-wrap,
+      body[data-workspace-layout="large"] .preview-wrap {
+        width: min(100%, calc(100vw - 28px));
+      }
     }
   </style>
 </head>
@@ -372,7 +450,7 @@
     </section>
 
     <section class="layout">
-      <aside class="panel">
+      <aside class="panel setup-panel">
         <div class="panel-inner stack">
           <h2 class="panel-title">생성 / 프리셋</h2>
 
@@ -493,7 +571,7 @@
         </div>
       </aside>
 
-      <aside class="panel">
+      <aside class="panel layers-panel">
         <div class="panel-inner stack">
           <h2 class="panel-title">레이어 관리</h2>
           <div class="control">
@@ -543,16 +621,20 @@
         </div>
       </aside>
 
-      <section class="panel preview-panel">
-        <div class="panel-title">미리보기 / 레이어 속성</div>
-        <div class="preview-wrap"><div id="preview"></div></div>
+      <section class="panel property-panel">
         <div class="panel-inner stack">
+          <div class="panel-title">선택 레이어 속성</div>
           <div id="propertyEditor"></div>
           <div class="footer-note">
             Pro v6는 스타일 이름을 게임 제작 관점에서 더 이해하기 쉽게 정리한 버전입니다.
             테스트해보고 부족한 부분을 말씀해주시면 v6에서 더 세밀하게 확장하겠습니다.
           </div>
         </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="panel-title">미리보기 / 레이어 속성</div>
+        <div class="preview-wrap"><div id="preview"></div></div>
       </section>
     </section>
   </div>
@@ -653,7 +735,7 @@
       return { id: uid(), type: 'circle', name, visible: true, locked: false, radius: options.radius ?? 380, strokeWidth: options.strokeWidth ?? 2, dashA: options.dashA ?? 0, dashB: options.dashB ?? 0, opacity: options.opacity ?? 0.9 };
     }
     function layerArcRing(name, options = {}) {
-      return { id: uid(), type: 'arcRing', name, visible: true, locked: false, radius: options.radius ?? 320, arcCount: options.arcCount ?? 8, arcLength: options.arcLength ?? 22, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 3, opacity: options.opacity ?? 0.85 };
+      return { id: uid(), type: 'arcRing', name, visible: true, locked: false, radius: options.radius ?? 320, offsetX: options.offsetX ?? 0, offsetY: options.offsetY ?? 0, moveGuide: options.moveGuide ?? true, moveSnap: options.moveSnap ?? false, moveSnapStep: options.moveSnapStep ?? 10, arcCount: options.arcCount ?? 8, arcLength: options.arcLength ?? 22, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 3, opacity: options.opacity ?? 0.85 };
     }
     function layerNodeRing(name, options = {}) {
       return { id: uid(), type: 'nodeRing', name, visible: true, locked: false, radius: options.radius ?? 300, nodeCount: options.nodeCount ?? 16, nodeSize: options.nodeSize ?? 6, filled: options.filled ?? true, rotation: options.rotation ?? 0, strokeWidth: options.strokeWidth ?? 2, opacity: options.opacity ?? 0.85 };
@@ -1013,10 +1095,12 @@
       if (layer.type === 'arcRing') {
         let out = '';
         const count = Math.max(1, layer.arcCount);
+        const ox = cx + (layer.offsetX ?? 0) * scale;
+        const oy = cy + (layer.offsetY ?? 0) * scale;
         for (let i = 0; i < count; i++) {
           const start = layer.rotation + i * (360 / count);
           const end = start + layer.arcLength;
-          out += `<path d="${describeArc(cx, cy, layer.radius * scale, start, end)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
+          out += `<path d="${describeArc(ox, oy, layer.radius * scale, start, end)}" fill="none" stroke="${WHITE}" stroke-width="${sw}" opacity="${opacity}"/>`;
         }
         return out;
       }
@@ -1130,19 +1214,59 @@
         </g>`;
     }
 
-    function getSvgMarkup(onlyLayerId = null, includeGuides = true) {
+    function arcMoveGuideMarkup(size) {
+      const layer = selectedLayer();
+      if (!layer || layer.type !== 'arcRing' || layer.moveGuide === false) return '';
+      const scale = size / 1024;
+      const cx = size / 2, cy = size / 2;
+      const min = -500 * scale, max = 500 * scale;
+      const x = cx + clamp(layer.offsetX ?? 0, -500, 500) * scale;
+      const y = cy + clamp(layer.offsetY ?? 0, -500, 500) * scale;
+      const left = cx + min, right = cx + max, top = cy + min, bottom = cy + max;
+      const labelSize = Math.max(14, 18 * scale);
+      const xMinLabel = Math.max(left, 58 * scale);
+      const xMaxLabel = Math.min(right, size - 58 * scale);
+      const yMinLabel = Math.max(top, 18 * scale);
+      const yMaxLabel = Math.min(bottom, size - 18 * scale);
+      const valueLabelX = clamp(x + 85 * scale, 80 * scale, size - 80 * scale);
+      const valueLabelY = clamp(y - 22 * scale, 22 * scale, size - 18 * scale);
+      const valueBoxX = valueLabelX - 71 * scale;
+      const valueBoxY = valueLabelY - 16 * scale;
+      return `
+        <g font-family="Inter, system-ui, sans-serif" font-size="${labelSize}" font-weight="800" text-anchor="middle" dominant-baseline="middle" pointer-events="none">
+          <g stroke="#7dd3fc" stroke-width="${Math.max(1, 2 * scale)}" fill="none" opacity="0.72">
+            <path d="M ${left.toFixed(2)} ${cy.toFixed(2)} L ${right.toFixed(2)} ${cy.toFixed(2)}" stroke-dasharray="${8 * scale} ${8 * scale}"/>
+            <path d="M ${cx.toFixed(2)} ${top.toFixed(2)} L ${cx.toFixed(2)} ${bottom.toFixed(2)}" stroke-dasharray="${8 * scale} ${8 * scale}"/>
+            <path d="M ${x.toFixed(2)} ${top.toFixed(2)} L ${x.toFixed(2)} ${bottom.toFixed(2)}" opacity="0.9"/>
+            <path d="M ${left.toFixed(2)} ${y.toFixed(2)} L ${right.toFixed(2)} ${y.toFixed(2)}" opacity="0.9"/>
+          </g>
+          <g fill="#d8f2ff" opacity="0.95">
+            <text x="${xMinLabel.toFixed(2)}" y="${(cy - 24 * scale).toFixed(2)}">X -500</text>
+            <text x="${cx.toFixed(2)}" y="${(cy - 24 * scale).toFixed(2)}">0</text>
+            <text x="${xMaxLabel.toFixed(2)}" y="${(cy - 24 * scale).toFixed(2)}">X +500</text>
+            <text x="${(cx + 42 * scale).toFixed(2)}" y="${yMinLabel.toFixed(2)}">Y -500</text>
+            <text x="${(cx + 42 * scale).toFixed(2)}" y="${yMaxLabel.toFixed(2)}">Y +500</text>
+          </g>
+          <circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${Math.max(7, 9 * scale)}" fill="#7dd3fc" stroke="#ffffff" stroke-width="${Math.max(2, 3 * scale)}"/>
+          <rect x="${valueBoxX.toFixed(2)}" y="${valueBoxY.toFixed(2)}" width="${142 * scale}" height="${30 * scale}" rx="${10 * scale}" fill="#04101f" fill-opacity="0.86" stroke="#7dd3fc" stroke-width="${Math.max(1, 1.5 * scale)}"/>
+          <text x="${valueLabelX.toFixed(2)}" y="${valueLabelY.toFixed(2)}" fill="#ffffff">X ${Math.round(layer.offsetX ?? 0)} / Y ${Math.round(layer.offsetY ?? 0)}</text>
+        </g>`;
+    }
+
+    function getSvgMarkup(onlyLayerId = null, includeGuides = true, includeMoveGuide = false) {
       const size = Number(state.canvasSize) || 1024;
       const cx = size / 2; const cy = size / 2; const scale = size / 1024;
       const defs = `<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
       const bg = state.transparentBg ? '' : `<rect width="${size}" height="${size}" fill="${DEFAULT_BG}"/>`;
       const guides = includeGuides ? guideMarkup(size) : '';
+      const moveGuide = includeMoveGuide ? arcMoveGuideMarkup(size) : '';
       const visibleLayers = state.layers.filter(l => l.visible && (!onlyLayerId || l.id === onlyLayerId));
       const body = visibleLayers.map(layer => renderLayerSvg(layer, cx, cy, scale)).join('\n');
-      return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${defs}${bg}${guides}<g filter="url(#glow)" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${defs}${bg}${guides}<g filter="url(#glow)" stroke-linecap="round" stroke-linejoin="round">${body}</g>${moveGuide}</svg>`;
     }
 
     function refreshPreviewOnly() {
-      preview.innerHTML = getSvgMarkup();
+      preview.innerHTML = getSvgMarkup(null, true, true);
       renderLayerList();
     }
 
@@ -1152,7 +1276,6 @@
       if (!layer) { propertyEditor.innerHTML = `<div class="empty-box">편집할 레이어를 선택하세요.</div>`; return; }
       propertyEditor.innerHTML = '';
       const wrap = document.createElement('div'); wrap.className = 'stack';
-      wrap.innerHTML = `<h3 style="margin:0;font-size:16px;">선택 레이어 속성</h3>`;
       if (layer.locked) {
         const msg = document.createElement('div'); msg.className = 'locked-overlay'; msg.textContent = '이 레이어는 잠겨 있습니다. 속성 편집을 하려면 먼저 잠금을 해제하세요.'; wrap.appendChild(msg);
       }
@@ -1175,9 +1298,21 @@
         wrap.appendChild(makeRange('dash B', layer.dashB, 0, 60, 1, v => layer.dashB = v, layer.locked));
       }
       if (layer.type === 'arcRing') {
+        const moveStep = layer.moveSnap ? Number(layer.moveSnapStep || 10) : 1;
         wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
+        wrap.appendChild(makeRange('X축 이동', layer.offsetX ?? 0, -500, 500, moveStep, v => layer.offsetX = v, layer.locked));
+        wrap.appendChild(makeRange('Y축 이동', layer.offsetY ?? 0, -500, 500, moveStep, v => layer.offsetY = v, layer.locked));
+        wrap.appendChild(makeCheckbox('축 이동 가이드 표시', layer.moveGuide !== false, v => layer.moveGuide = v, layer.locked));
+        wrap.appendChild(makeCheckbox('축 이동 스냅', layer.moveSnap ?? false, v => layer.moveSnap = v, layer.locked));
+        wrap.appendChild(makeSelect('스냅 간격', String(layer.moveSnapStep ?? 10), [
+          {value:'1', label:'1'},
+          {value:'5', label:'5'},
+          {value:'10', label:'10'},
+          {value:'25', label:'25'},
+          {value:'50', label:'50'}
+        ], v => layer.moveSnapStep = Number(v), layer.locked));
         wrap.appendChild(makeRange('원호 수량', layer.arcCount, 1, 48, 1, v => layer.arcCount = v, layer.locked));
-        wrap.appendChild(makeRange('원호 길이', layer.arcLength, 2, 120, 1, v => layer.arcLength = v, layer.locked));
+        wrap.appendChild(makeRange('원호 길이', layer.arcLength, 1, 120, 1, v => layer.arcLength = v, layer.locked));
         wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
         wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 10, 0.1, v => layer.strokeWidth = v, layer.locked));
       }
@@ -1192,8 +1327,8 @@
       if (layer.type === 'chainRing') {
         wrap.appendChild(makeRange('반지름', layer.radius, 20, 470, 1, v => layer.radius = v, layer.locked));
         wrap.appendChild(makeRange('체인 수량', layer.linkCount, 1, 48, 1, v => layer.linkCount = v, layer.locked));
-        wrap.appendChild(makeRange('체인 너비', layer.linkWidth, 4, 60, 1, v => layer.linkWidth = v, layer.locked));
-        wrap.appendChild(makeRange('체인 높이', layer.linkHeight, 4, 80, 1, v => layer.linkHeight = v, layer.locked));
+        wrap.appendChild(makeRange('체인 너비', layer.linkWidth, 4, 180, 1, v => layer.linkWidth = v, layer.locked));
+        wrap.appendChild(makeRange('체인 높이', layer.linkHeight, 4, 240, 1, v => layer.linkHeight = v, layer.locked));
         wrap.appendChild(makeRange('회전', layer.rotation, 0, 360, 1, v => layer.rotation = v, layer.locked));
         wrap.appendChild(makeRange('선 두께', layer.strokeWidth, 0.5, 8, 0.1, v => layer.strokeWidth = v, layer.locked));
       }
@@ -1298,9 +1433,46 @@
       const b = document.createElement('span'); b.textContent = formatValue(value);
       row.append(a, b);
       const input = document.createElement('input'); input.type = 'range'; input.min = min; input.max = max; input.step = step; input.value = value; input.disabled = disabled;
+      const numberInput = document.createElement('input');
+      numberInput.type = 'number';
+      numberInput.className = 'range-number';
+      numberInput.min = min;
+      numberInput.max = max;
+      numberInput.step = step;
+      numberInput.value = formatValue(value);
+      numberInput.disabled = disabled;
+      const rangeRow = document.createElement('div');
+      rangeRow.className = 'range-input-row';
       input.addEventListener('pointerdown', () => { if (!disabled) pushHistory(); }, { once: true });
-      input.addEventListener('input', () => { const parsed = step < 1 ? parseFloat(input.value) : parseInt(input.value, 10); setter(parsed); b.textContent = formatValue(parsed); refreshPreviewOnly(); });
-      wrap.append(row, input); return wrap;
+      numberInput.addEventListener('focus', () => { if (!disabled) pushHistory(); }, { once: true });
+      const normalizeValue = rawValue => {
+        if (String(rawValue).trim() === '') return;
+        const numeric = Number(rawValue);
+        if (!Number.isFinite(numeric)) return;
+        const clamped = clamp(numeric, min, max);
+        return step < 1 ? Number(clamped.toFixed(4)) : Math.round(clamped);
+      };
+      const applyValue = (rawValue, syncNumberInput = true) => {
+        const parsed = normalizeValue(rawValue);
+        if (parsed === undefined) return;
+        input.value = parsed;
+        if (syncNumberInput) numberInput.value = formatValue(parsed);
+        setter(parsed);
+        b.textContent = formatValue(parsed);
+        refreshPreviewOnly();
+      };
+      input.addEventListener('input', () => applyValue(input.value));
+      numberInput.addEventListener('input', () => applyValue(numberInput.value, false));
+      numberInput.addEventListener('change', () => {
+        const parsed = normalizeValue(numberInput.value);
+        numberInput.value = parsed === undefined ? formatValue(input.value) : formatValue(parsed);
+        if (parsed !== undefined) applyValue(parsed);
+      });
+      numberInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') numberInput.blur();
+      });
+      rangeRow.append(input, numberInput);
+      wrap.append(row, rangeRow); return wrap;
     }
     function makeCheckbox(title, checked, setter, disabled = false) {
       const label = document.createElement('label'); label.className = 'toggle';
@@ -1745,7 +1917,7 @@
       runeDensityLabel.textContent = String(state.runeDensity);
       document.getElementById('undoBtn').disabled = state.undoStack.length === 0;
       document.getElementById('redoBtn').disabled = state.redoStack.length === 0;
-      preview.innerHTML = getSvgMarkup();
+      preview.innerHTML = getSvgMarkup(null, true, true);
       renderLayerList();
       renderPropertyEditor();
       refreshUserPresetSelect();

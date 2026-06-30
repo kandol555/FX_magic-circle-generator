@@ -35,6 +35,7 @@
 ## 화면 예시
 
 ![프로그램 화면](images/screenshot.png)
+![프로그램 화면](images/screenshot_02.png)
 
 ## 파일 설명
 
